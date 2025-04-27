@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{%block content %}
+    <button>i am the start button</button>
+    {% for session in user.sessions %}
+    <div>
+        {{session.start}} - {{session.end}} for a total of {{session.duration}}
+    </div>
+    {% endfor %}
+{% endblock %}
