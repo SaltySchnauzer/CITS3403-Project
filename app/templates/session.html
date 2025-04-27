@@ -1,10 +1,16 @@
 {% extends "base.html" %}
 
 {%block content %}
-    <button>i am the start button</button>
+    <div class="flex items-center justify-center">
+        <button class="bg-cyan-600 rounded-full size-80 m-12">
+        i am the start button
+        </button>
+    </div>
+    Previous sessions:
     {% for session in user.sessions %}
     <div>
-        {{session.start}} - {{session.end}} for a total of {{session.duration}}
+        {{session.name}}, {{session.start}} - {{session.end}}
     </div>
     {% endfor %}
+   
 {% endblock %}

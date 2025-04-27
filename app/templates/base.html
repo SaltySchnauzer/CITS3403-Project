@@ -2,14 +2,18 @@
 <html>
     <head>
         <title>{{title}} - Study Tracker</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tailwind.css') }}" />
     </head>
     <body>
-        <h1>Welcome to Study Tracker!</h1>
-        <div>
-            <a href="./">Home</a>
-            <a href="./session">Start a session</a>
-            <a href="./history">History</a>
-            <a href="./friends">Friends</a>
+        <div class = "flex items-center justify-center">
+            <div>logo go here</div>
+            <h1 class="text-4xl font-bold">Welcome to Study Tracker!</h1>
+        </div>
+        <div class="max-w-sm mx-auto items-center flex gap-x-4">
+            <a href="./" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">Home</a>
+            <a href="./session" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">Start a session</a>
+            <a href="./history" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">History</a>
+            <a href="./leaderboard" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">Leaderboard</a>
         </div>
         {% block content %}{% endblock %}
     </body>
