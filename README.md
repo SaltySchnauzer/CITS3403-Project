@@ -16,8 +16,9 @@ lalala description or something
 
 ### How to run after setup
 1. Activate the venv virtual environment with `source venv/bin/activate`
-2. Run flask application with `flask run --debug`
-3. Run the tailwind css compiler `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
+2. Initialise database which is synchronised with defined models with `flask db init`
+3. Run flask application with `flask run --debug`
+4. Run the tailwind css compiler `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
 
 Both should automatically update when making changes.
 
