@@ -2,19 +2,33 @@
 <html>
     <head>
         <title>{{title}} - Study Tracker</title>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tailwind.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='tailwind.css')}}" />
     </head>
-    <body>
-        <div class = "flex items-center justify-center">
-            <div>logo go here</div>
-            <h1 class="text-4xl font-bold">Welcome to Study Tracker!</h1>
-        </div>
-        <div class="max-w-sm mx-auto items-center flex gap-x-4">
-            <a href="./" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">Home</a>
-            <a href="./session" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">Start a session</a>
-            <a href="./history" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">History</a>
-            <a href="./leaderboard" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900">Leaderboard</a>
-        </div>
+    <body class = "{{bodycss}}">
+        <div class="flex flex-col {% if screen != 'scroll' %} h-screen {% endif %}">
+            <div class="bg-gradient-to-t to-white/40 to-50% pb-10">
+                <div class = "flex items-center justify-around mt-1">
+                    <div>logo go here</div>
+                    <h1 class="text-4xl font-bold">Welcome to Study Tracker!</h1>
+                    {% if current_user.is_anonymous %}
+                        {% if url_for(request.endpoint) == '/signin' %}
+                            <a href="{{url_for('signup')}}" class="text-gray-700 hover:bg-green-400 hover:text-gray-900 hover:rounded-md p-1">Sign Up</a>
+                        {% else %}
+                            <a href="{{url_for('signin')}}" class="text-gray-700 hover:bg-green-400 hover:text-gray-900 hover:rounded-md p-1">Log in</a>
+                        {% endif %}
+                    {% else %}
+                    <a href="{{url_for('logout')}}">log out</a>
+                    {% endif %}
+                </div>
+                <div class="justify-center flex gap-x-4 m-2">
+                    <a href="./" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:rounded-md p-1">Home</a>
+                    <a href="./session" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:rounded-md p-1">Start a session</a>
+                    <a href="./history" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:rounded-md p-1">History</a>
+                    <a href="./leaderboard" class="text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:rounded-md p-1">Leaderboard</a>
+                </div>
+            </div>
+            
         {% block content %}{% endblock %}
+        </div>
     </body>
 </html>

@@ -16,14 +16,15 @@ lalala description or something
 
 ### How to run after setup
 1. Activate the venv virtual environment with `source venv/bin/activate`
-2. Initialise database which is synchronised with defined models with `flask db init`
-        -`flask db migrate -m "initial version of models"`
-        -`flask db upgrade`
-        
+2. Initialise the database with the following commands:
+    1. `flask db init` - to create migrations versioning folder + .db
+    2. `flask db migrate -m "Initial Models"` - to automatically create scripts to update tables to latest model definitions
+    3. `flask db upgrade` - to push the latest tables to your .db
 3. Run flask application with `flask run --debug`
 4. Run the tailwind css compiler `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
+    - This isn't neccessary if there are no CSS edits planned.
 
-Both should automatically update when making changes.
+If the database begins to bug out, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
 
 ### Current packages in use
 - Flask

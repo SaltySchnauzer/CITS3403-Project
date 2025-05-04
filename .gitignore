@@ -176,3 +176,4 @@ cython_debug/
 # Tailwind CLI exe
 tailwindcss
 migrations
+app/app.db

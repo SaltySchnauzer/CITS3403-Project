@@ -1,38 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="flex items-center justify-center h-screen bg-gray-100">
-    <form method="POST" class="bg-white p-8 rounded-lg shadow-md w-80">
+{% set bodycss = 'bg-gray-100' %}
+{% extends "base.html" %}
+
+{%block content %}
+<div class="flex items-center justify-center h-screen ">
+    <form action="" method="post" class="bg-white p-8 rounded-lg shadow-md w-80">
         <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="mb-4 p-2 rounded text-center
-                          {% if category == 'error' %} bg-red-200 text-red-800
-                          {% elif category == 'success' %} bg-green-200 text-green-800
-                          {% endif %}">
-                {{ message }}
-              </div>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(class = "w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400") }}<br>
+            {% for error in form.username.errors %}
+            <div class="mb-4 p-2 rounded text-center bg-red-200 text-red-800 w-full">[{{ error }}]</div>
             {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        <input type="text" name="username" placeholder="Username" required
-            class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <input type="password" name="password" placeholder="Password" required
-            class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <button type="submit"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg">
-            Create Account
-        </button>
+        </p>
+        <p >
+            {{ form.password.label }}<br>
+            {{ form.password(class = "w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400") }}<br>
+            {% for error in form.password.errors %}
+            <div class="mb-4 p-2 rounded text-center bg-red-200 text-red-800 w-full">[{{ error }}]</div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(class = "w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400") }}<br>
+            {% for error in form.password2.errors %}
+            <div class="mb-4 p-2 rounded text-center bg-red-200 text-red-800 w-full">[{{ error }}]</div>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg") }}</p>
         <p class="text-center text-sm text-gray-600 mt-4">
-            Already have an account? <a href="{{ url_for('signin') }}" class="text-blue-500 hover:underline">Sign In</a>
+            Already have an account? <a href="{{ url_for('signin') }}" class="text-green-500 hover:underline">Sign Up</a>
         </p>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}
