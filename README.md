@@ -17,6 +17,9 @@ lalala description or something
 ### How to run after setup
 1. Activate the venv virtual environment with `source venv/bin/activate`
 2. Initialise database which is synchronised with defined models with `flask db init`
+        -`flask db migrate -m "initial version of models"`
+        -`flask db upgrade`
+        
 3. Run flask application with `flask run --debug`
 4. Run the tailwind css compiler `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
 
@@ -31,3 +34,5 @@ Both should automatically update when making changes.
 - Tailwind (CLI)
     - A CSS formatter
     - Typically depends on Node Package Manager - but because our backend is currently only python, we've opted for an independent cli
+
+- need to add SQL and SQLalchemy stuff. 
