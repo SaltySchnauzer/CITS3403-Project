@@ -9,7 +9,13 @@
             <div class="bg-gradient-to-t to-white/40 to-50% pb-10">
                 <div class = "flex items-center justify-around mt-1">
                     <div>logo go here</div>
-                    <h1 class="text-4xl font-bold">Welcome to Study Tracker!</h1>
+                    <h1 class="text-4xl font-bold">
+                        {% if current_user.is_anonymous %}
+                        Welcome to Study Tracker!
+                        {% else %}
+                        Welcome to Study Tracker, {{current_user.username}}!
+                        {% endif %}
+                    </h1>
                     {% if current_user.is_anonymous %}
                         {% if url_for(request.endpoint) == '/signin' %}
                             <a href="{{url_for('signup')}}" class="text-gray-700 hover:bg-green-400 hover:text-gray-900 hover:rounded-md p-1">Sign Up</a>
@@ -17,7 +23,7 @@
                             <a href="{{url_for('signin')}}" class="text-gray-700 hover:bg-green-400 hover:text-gray-900 hover:rounded-md p-1">Log in</a>
                         {% endif %}
                     {% else %}
-                    <a href="{{url_for('logout')}}">log out</a>
+                    <a href="{{url_for('logout')}}" class="text-gray-700 hover:bg-red-400 hover:text-gray-900 hover:rounded-md p-1">log out</a>
                     {% endif %}
                 </div>
                 <div class="justify-center flex gap-x-4 m-2">

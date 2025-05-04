@@ -12,8 +12,5 @@
             Our platform offers state-of-the-art Task Tracking™ to log and compare your own focus sessions to others.
         </p>
     </div>
-    {% if not current_user.is_anonymous %}
-    Hello there {{current_user.username}}, intrigued in a quick <a href="/session">study session</a>?
-    {% endif %}
 </div>
 {% endblock %}
