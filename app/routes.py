@@ -3,6 +3,7 @@
 from flask import render_template # This uses jinja templating - peep /app/templates
 from flask import request, redirect, url_for, session, flash  # NEW: added imports - can merge the top two lines once people approve of change
 from flask import render_template, request, redirect, url_for, session, flash  # NEW: for password hashing
+from werkzeug.security import generate_password_hash, check_password_hash
 from app import app
 
 
