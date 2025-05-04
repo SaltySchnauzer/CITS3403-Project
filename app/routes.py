@@ -1,8 +1,16 @@
 # URL routing
 
 from flask import render_template # This uses jinja templating - peep /app/templates
+from flask import request, redirect, url_for, session, flash  # NEW: added imports - can merge the top two lines once people approve of change
+from flask import render_template, request, redirect, url_for, session, flash  # NEW: for password hashing
 from app import app
 
+
+# Fake "user database" until we set up sql
+users = {}
+
+
+# example user when logged in
 example_user = {
     'username': 'Gordon Freeman',
     'sessions':
@@ -20,19 +28,70 @@ example_leaderboard = [
     {'username': 'Gordon Freeman', 'time': '07:57'}
 ]
 
+
+# -- pages --
+
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='Home', user = example_user)
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+    return render_template('index.html', title='Home', user=example_user)
 
 @app.route('/session')
-def session():
-    return render_template('session.html', title = 'Session', user = example_user)
+def session_page():
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+    return render_template('session.html', title='Session', user=example_user)
 
 @app.route('/leaderboard')
 def leaderboard():
-    return render_template('friends.html', title = 'Friends', user = example_user, leaderboard = example_leaderboard)
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+    return render_template('friends.html', title='Friends', user=example_user, leaderboard=example_leaderboard)
 
 @app.route('/history')
 def history():
-    return render_template('history.html', title = 'History', user = example_user)
+    if 'username' not in session:
+        return redirect(url_for('signin'))
+    return render_template('history.html', title='History', user=example_user)
+
+
+# --- Authentication Pages ---
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if username in users:
+            flash('Username already exists!', 'error')
+            return redirect(url_for('signup'))
+
+        users[username] = generate_password_hash(password)
+        flash('Account created successfully! Please sign in.', 'success')
+        return redirect(url_for('signin'))
+    return render_template('signup.html', title='Sign Up')
+
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        stored_password = users.get(username)
+        if stored_password and check_password_hash(stored_password, password):
+            session['username'] = username
+            flash('Signed in successfully!', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid username or password.', 'error')
+            return redirect(url_for('signin'))
+    return render_template('signin.html', title='Sign In')
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('signin'))
