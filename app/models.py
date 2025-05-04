@@ -5,5 +5,6 @@ from app import db
 class Accounts(db.Model): 
     user_id = db.Column(db.Integer, primary_key=True) 
     user_name = db.Column(db.String(50), nullable=False)
-    #password =
+    password = db.Column(db.String(50), nullable=False) 
 
+ 

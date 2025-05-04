@@ -16,4 +16,4 @@ migrate = Migrate(app, db) # Initialise migration manager
 
 login = LoginManager(app)
 
-from app import routes # This is imported later to avoid circular referencing issues with Flask
+from app import routes, models # This is imported later to avoid circular referencing issues with Flask

@@ -5,6 +5,7 @@ from flask import request, redirect, url_for, session, flash  # NEW: added impor
 from flask import render_template, request, redirect, url_for, session, flash  # NEW: for password hashing
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app
+from app import db
 
 
 # Fake "user database" until we set up sql
@@ -71,6 +72,10 @@ def signup():
             return redirect(url_for('signup'))
 
         users[username] = generate_password_hash(password)
+        new_user = Accounts(user_name=username, password=users[username])
+        db.session.add(new_project)     # ... 
+        db.session.commit()             # should be in another function. Will fix later.  
+
         flash('Account created successfully! Please sign in.', 'success')
         return redirect(url_for('signin'))
     return render_template('signup.html', title='Sign Up')
