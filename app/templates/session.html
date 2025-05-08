@@ -7,7 +7,7 @@
         </button>
     </div>
     Previous sessions:
-    {% for session in user.sessions %}
+    {% for session in current_user.sessions %}
     <div>
         {{session.name}}, {{session.start}} - {{session.end}}
     </div>

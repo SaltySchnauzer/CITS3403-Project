@@ -175,3 +175,6 @@ cython_debug/
 
 # Tailwind CLI exe
 tailwindcss
+# Database files that probably shouldn't get committed all the time :/
+migrations
+app/app.db

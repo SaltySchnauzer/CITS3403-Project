@@ -3,95 +3,70 @@
 from flask import render_template # This uses jinja templating - peep /app/templates
 from flask import request, redirect, url_for, session, flash  # NEW: added imports - can merge the top two lines once people approve of change
 from flask import render_template, request, redirect, url_for, session, flash  # NEW: for password hashing
-from app import app
-
-
-# Fake "user database" until we set up sql
-users = {}
-
-
-# example user when logged in
-example_user = {
-    'username': 'Gordon Freeman',
-    'sessions':
-        [
-            {'name': '', 'start': "Friday, 6:34pm", 'end': "Friday, 7:58pm", 'duration': "1:24:23"},
-            {'name': 'molecules with the besties', 'start': "Thursday, 2:01pm", 'end': "Thursday, 5:14pm", 'duration': "3:13:41"},
-            {'name': 'LMS Test I forgot about', 'start': "Monday, 9:53pm", 'end': "Tuesday, 1:12am", 'duration': "3:19:03"}
-        ],
-    'time': '14:23'
-}
-
-example_leaderboard = [
-    {'username': 'Bingle', 'time': '00:00'},
-    {'username': 'Jonesy Fortnite', 'time': '05:23'},
-    {'username': 'Gordon Freeman', 'time': '07:57'}
-]
-
+from werkzeug.security import generate_password_hash, check_password_hash
+from app import app, db
+import sqlalchemy as sa
+from flask_login import current_user, login_user, login_required, logout_user
+from app.models import User
+from app.forms import LoginForm, RegistrationForm
 
 # -- pages --
 
 @app.route('/')
 @app.route('/index')
 def index():
-    if 'username' not in session:
-        return redirect(url_for('signin'))
-    return render_template('index.html', title='Home', user=example_user)
+    return render_template('index.html', title='Home')
+
 
 @app.route('/session')
+@login_required
 def session_page():
-    if 'username' not in session:
-        return redirect(url_for('signin'))
-    return render_template('session.html', title='Session', user=example_user)
+    return render_template('session.html', title='Session')
 
 @app.route('/leaderboard')
+@login_required
 def leaderboard():
-    if 'username' not in session:
-        return redirect(url_for('signin'))
-    return render_template('friends.html', title='Friends', user=example_user, leaderboard=example_leaderboard)
+    users = db.session.scalars(sa.select(User)).all()
+    return render_template('friends.html', title='Friends', leaderboard = users)
 
 @app.route('/history')
+@login_required
 def history():
-    if 'username' not in session:
-        return redirect(url_for('signin'))
-    return render_template('history.html', title='History', user=example_user)
+    return render_template('history.html', title='History')
 
 
 # --- Authentication Pages ---
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        if username in users:
-            flash('Username already exists!', 'error')
-            return redirect(url_for('signup'))
-
-        users[username] = generate_password_hash(password)
-        flash('Account created successfully! Please sign in.', 'success')
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
         return redirect(url_for('signin'))
-    return render_template('signup.html', title='Sign Up')
+    return render_template('signup.html', title='Sign Up', form=form)
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        stored_password = users.get(username)
-        if stored_password and check_password_hash(stored_password, password):
-            session['username'] = username
-            flash('Signed in successfully!', 'success')
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid username or password.', 'error')
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = db.session.scalar(
+            sa.select(User).where(User.username == form.username.data))
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
             return redirect(url_for('signin'))
-    return render_template('signin.html', title='Sign In')
+        login_user(user, remember=form.remember_me.data)
+        return redirect('/index')
+    return render_template('signin.html', title = 'Sign In', form = form)
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
-    flash('You have been logged out.', 'success')
-    return redirect(url_for('signin'))
+    logout_user()
+    return redirect(url_for('index'))

@@ -1,5 +1,16 @@
+{% set bodycss = 'bg-amber-200' %}
 {% extends "base.html" %}
 
 {%block content %}
-    Hello there {{user.username}}, intrigued in a quick <a href="/session">study session</a>?
+<div class = "bg-amber-200 h-screen flex flex-col justify-center">
+    <div class = "flex justify-center h-1/2">
+        <div class = "m-10 flex flex-col justify-center flex-initial">
+            <h1 class = "p-5 text-6xl font-extrabold italic text-center bg-blue-400 rounded-2xl shadow-md">Begin your journey of collaborative focus.</h1>
+        </div>
+        <p class="w-1/5 grow m-5">
+            Studying, working or hobbying away is always better with friends - [put a cool sounding name here] bridges that gap between a focused, solitary deskspace and a collaborative, community experience.
+            Our platform offers state-of-the-art Task Tracking™ to log and compare your own focus sessions to others.
+        </p>
+    </div>
+</div>
 {% endblock %}
