@@ -7,8 +7,14 @@
     <body class = "{{bodycss}}">
         <div class="flex flex-col {% if screen != 'scroll' %} h-screen {% endif %}">
             <div class="bg-gradient-to-t to-white/40 to-50% pb-10">
-                <div class = "flex items-center justify-around mt-1">
-                    <div>logo go here</div>
+                <div class = "flex items-start justify-around mt-1">
+                    <div> 
+                        <img
+                        src="{{ url_for('static', filename='StudyerLogoFinal.PNG') }}"
+                        alt="Study Tracker logo"
+                        class="w-48 h-48 object-contain object-top object-left"
+                        />
+                    </div>
                     <h1 class="text-4xl font-bold">
                         {% if current_user.is_anonymous %}
                         Welcome to Study Tracker!
