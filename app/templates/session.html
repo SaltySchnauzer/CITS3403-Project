@@ -1,16 +1,39 @@
 {% extends "base.html" %}
+{% set bodycss = 'bg-green-100' %}
 
-{%block content %}
-    <div class="flex items-center justify-center">
-        <button class="bg-cyan-600 rounded-full size-80 m-12">
-        i am the start button
-        </button>
+{% block content %}
+<div class="bg-green-100 min-h-screen flex flex-col justify-start py-10 px-6 md:px-20 lg:px-40">
+  <div class="max-w-4xl w-full mx-auto">
+
+    <!-- Start Button -->
+    <div class="flex justify-center mb-12">
+      <button class="w-64 h-64 rounded-full bg-gradient-to-b from-green-400 to-green-600 border-2 border-green-800 text-green-900 text-2xl font-extrabold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center text-center tracking-wide">
+        press to start!
+      </button>
     </div>
-    Previous sessions:
-    {% for session in current_user.sessions %}
-    <div>
-        {{session.name}}, {{session.start}} - {{session.end}}
+
+    <!-- Session History Header -->
+    <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-4">
+      Previous Sessions
+    </h2>
+    <p class="text-center text-gray-700 text-sm mb-8">
+      Here's a list of your recent study sessions:
+    </p>
+
+    <!-- Session Entries -->
+    <div class="space-y-4">
+      {% for session in current_user.sessions %}
+      <div class="bg-white border-l-4 border-green-400 shadow rounded-lg p-4 grid grid-cols-1 md:grid-cols-4 gap-4 text-sm md:text-base">
+        <div class="text-gray-800 font-medium">
+          {{ session.name if session.name else "Untitled" }}
+        </div>
+        <div class="text-gray-500">{{ session.start }}</div>
+        <div class="text-gray-500">{{ session.end }}</div>
+        <div class="text-green-600 font-semibold">{{ session.duration }}</div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-   
+
+  </div>
+</div>
 {% endblock %}
