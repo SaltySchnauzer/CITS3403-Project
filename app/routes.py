@@ -3,12 +3,16 @@
 from flask import render_template # This uses jinja templating - peep /app/templates
 from flask import request, redirect, url_for, session, flash  # NEW: added imports - can merge the top two lines once people approve of change
 from flask import render_template, request, redirect, url_for, session, flash  # NEW: for password hashing
+from flask import render_template, request, jsonify # for json req
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
 import sqlalchemy as sa
 from flask_login import current_user, login_user, login_required, logout_user
-from app.models import User
+from app.models import User, Session
 from app.forms import LoginForm, RegistrationForm
+
+from datetime import datetime
+
 
 # -- pages --
 
@@ -22,6 +26,31 @@ def index():
 @login_required
 def session_page():
     return render_template('session.html', title='Session')
+
+
+
+# --- JSON Endpoint for saving data of completed sessions --- 
+
+@app.route("/api/sessions", methods=["POST"])
+@login_required
+def api_sessions():
+    data = request.get_json()
+    started = datetime.fromisoformat(data["started_at"].replace("Z", "+00:00"))
+    ended   = datetime.fromisoformat(data["ended_at"].replace("Z", "+00:00"))
+
+    sess = Session(
+        name       = data.get("name"),
+        started_at = started,
+        ended_at   = ended,
+        duration   = data["duration"],
+        user_id    = current_user.id
+    )
+    db.session.add(sess)
+    db.session.commit()
+
+    return jsonify(status="success", session=sess.to_dict()), 201
+
+
 
 @app.route('/leaderboard')
 @login_required

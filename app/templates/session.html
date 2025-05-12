@@ -1,16 +1,36 @@
 {% extends "base.html" %}
 
-{%block content %}
-    <div class="flex items-center justify-center">
-        <button class="bg-cyan-600 rounded-full size-80 m-12">
-        i am the start button
-        </button>
+{% block content %}
+  <div class="flex flex-col items-center justify-center py-8 space-y-4">
+    <div class="text-xl font-mono">
+      Elapsed: <span id="timer">00:00</span>
     </div>
-    Previous sessions:
-    {% for session in current_user.sessions %}
     <div>
-        {{session.name}}, {{session.start}} - {{session.end}}
+      <button id="start-session"
+              class="px-6 py-3 bg-cyan-600 text-white rounded-full">
+        Start Session
+      </button>
+      <button id="end-session"
+              class="px-6 py-3 bg-red-500 text-white rounded-full ml-4"
+              disabled>
+        End Session
+      </button>
     </div>
+  </div>
+
+  <h2 class="mt-8 text-lg font-semibold">Previous sessions:</h2>
+  <div class="space-y-1">
+    {% for s in current_user.sessions %}
+      <div>
+        {{ s.name or "Session" }}, 
+        {{ s.started_at.strftime("%Y-%m-%d %H:%M") }} – 
+        {{ s.ended_at.strftime("%Y-%m-%d %H:%M") }}
+      </div>
+    {% else %}
+      <div class="italic text-gray-500">No sessions yet.</div>
     {% endfor %}
-   
+  </div>
+
+  <script src="{{ url_for('static', filename='session.js') }}"></script>
+  
 {% endblock %}
