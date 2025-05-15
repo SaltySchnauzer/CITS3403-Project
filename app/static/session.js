@@ -23,18 +23,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   endBtn.addEventListener("click", async () => {
     clearInterval(timerInterval);
-    const endTime  = Date.now();
-    const payload  = {
+    const endTime = Date.now();
+    const payload = {
       started_at: new Date(startTime).toISOString(),
-      ended_at:   new Date(endTime).toISOString(),
-      duration:   endTime - startTime
+      ended_at: new Date(endTime).toISOString(),
+      duration: endTime - startTime,
     };
 
     try {
       const res = await fetch("/api/sessions", {
-        method:  "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(await res.text());
       await res.json();
@@ -42,9 +42,22 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Save failed:", err);
     }
 
-    // reset UI
+    // reset timer and button states
     timerEl.textContent = "00:00";
     startBtn.disabled = false;
-    endBtn.disabled   = true;
-  });
+    endBtn.disabled = true;
+
+    // ✅ SHOW the summary modal
+    const modal = document.getElementById("session-summary-modal");
+    if (modal) {
+      modal.classList.remove("hidden");
+    }
+    });
+
+    const cancelBtn = document.getElementById("cancel-modal");
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => {
+        document.getElementById("session-summary-modal").classList.add("hidden");
+      });
+    }
 });

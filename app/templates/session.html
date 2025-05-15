@@ -40,4 +40,61 @@
   </div>
 
   <script src="{{ url_for('static', filename='session.js') }}"></script>
+
+
+<!-- Session Summary Modal (initially hidden) -->
+<div id="session-summary-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
+    <h2 class="text-xl font-semibold text-gray-800">Session Summary</h2>
+    
+    <form action="{{ url_for('submit_session_summary') }}" method="POST" class="space-y-4">
+      {{ form.hidden_tag() }}
+
+      <!-- Subject -->
+      <div>
+        <label for="subject" class="block text-sm font-medium text-gray-700">Subject Studied</label>
+        <input type="text" id="subject" name="subject" class="mt-1 w-full border rounded-md px-3 py-2 focus:ring-cyan-500 focus:border-cyan-500" required>
+      </div>
+
+      <!-- Productivity -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Productivity (%)</label>
+        <select name="productivity" class="mt-1 w-full border rounded-md px-3 py-2 focus:ring-cyan-500 focus:border-cyan-500" required>
+          <option value="">Select</option>
+          <option value="0">0%</option>
+          <option value="25">25%</option>
+          <option value="50">50%</option>
+          <option value="75">75%</option>
+          <option value="100">100%</option>
+        </select>
+      </div>
+
+      <!-- Mood -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">How did you feel?</label>
+        <div class="flex space-x-4 mt-2">
+          <label class="text-2xl cursor-pointer">
+            <input type="radio" name="mood" value="sad" class="hidden" required>
+            😞
+          </label>
+          <label class="text-2xl cursor-pointer">
+            <input type="radio" name="mood" value="neutral" class="hidden">
+            😐
+          </label>
+          <label class="text-2xl cursor-pointer">
+            <input type="radio" name="mood" value="happy" class="hidden">
+            😊
+          </label>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex justify-end space-x-3 pt-4">
+        <button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 {% endblock %}

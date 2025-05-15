@@ -1,9 +1,18 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, RadioField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 import sqlalchemy as sa
 from app import db
 from app.models import User
+from wtforms.validators import DataRequired
+
+
+
+
+class SessionSummaryForm(FlaskForm):
+    subject = StringField("Subject", validators=[DataRequired()])
+    productivity = SelectField("Productivity", choices=[("0", "0%"), ("25", "25%"), ("50", "50%"), ("75", "75%"), ("100", "100%")], validators=[DataRequired()])
+    mood = RadioField("Mood", choices=[("sad", "😞"), ("neutral", "😐"), ("happy", "😊")], validators=[DataRequired()])
 
 
 class LoginForm(FlaskForm):

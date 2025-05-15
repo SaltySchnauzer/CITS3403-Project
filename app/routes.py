@@ -9,8 +9,7 @@ from app import app, db
 import sqlalchemy as sa
 from flask_login import current_user, login_user, login_required, logout_user
 from app.models import User, Session
-from app.forms import LoginForm, RegistrationForm
-
+from app.forms import LoginForm, RegistrationForm, SessionSummaryForm
 from datetime import datetime
 
 
@@ -25,7 +24,8 @@ def index():
 @app.route('/session')
 @login_required
 def session_page():
-    return render_template('session.html', title='Session')
+    form = SessionSummaryForm()
+    return render_template('session.html', title='Session', form=form)
 
 
 
@@ -50,6 +50,33 @@ def api_sessions():
 
     return jsonify(status="success", session=sess.to_dict()), 201
 
+
+
+
+
+
+
+
+@app.route("/submit-session-summary", methods=["POST"])
+@login_required
+def submit_session_summary():
+    subject = request.form.get("subject")
+    productivity = request.form.get("productivity")
+    mood = request.form.get("mood")
+
+    last_session = current_user.sessions.order_by(Session.started_at.desc()).first()
+
+    if not last_session:
+        flash("No session found to update.", "danger")
+        return redirect(url_for("session_page"))
+
+    last_session.name = subject
+    last_session.productivity = int(productivity)
+    last_session.mood = mood
+
+    db.session.commit()
+    flash("Session summary saved!", "success")
+    return redirect(url_for("session_page"))  # reloads session page with updated inf
 
 
 @app.route('/leaderboard')
