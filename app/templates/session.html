@@ -8,6 +8,20 @@
       Elapsed: <span id="timer">00:00</span>
     </div>
 
+    <!-- For any flashed messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-4 p-2 rounded text-center 
+                            {% if category == 'danger' %} text-red-800 bg-red-400
+                            {% elif category == 'success' %} text-green-800 bg-green-400
+                            {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <div class="flex space-x-4">
       <button id="start-session"
               class="px-6 py-3 rounded-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
@@ -32,7 +46,17 @@
             <div class="text-sm text-gray-500 mt-1">
               <span class="session-time" 
                     data-start="{{ s.started_at.isoformat() }}" 
-                    data-end="{{ s.ended_at.isoformat() }}">Loading...</span>
+                    data-end="{{ s.ended_at.isoformat() }}">Loading...</span>: {{(s.duration/60000)|round(0) | int}} mins
+            </div>
+            <div class = "italic text-sm">
+              {% if s.description == '' %}
+              ㅤ {# whitespace to keep formatting consistent #}
+              {% else %}
+              {{s.description}}
+              {% endif %}
+            </div>
+            <div class="text-sm">
+              Productivity: {{s.productivity|round|int}}%
             </div>
           </div>
         {% endfor %}
@@ -62,93 +86,9 @@
   </div>
 </div>
 
+{% include 'session_form.html' %}
+
 <script src="{{ url_for('static', filename='session.js') }}"></script>
 
-<style>
-  .emoji-btn {
-    padding: 0.5rem;
-    border-radius: 9999px;
-    transition: background 0.2s, transform 0.1s;
-  }
-  .emoji-btn:hover {
-    background-color: #f0f0f0;
-    transform: scale(1.1);
-  }
-  .emoji-btn.selected {
-    background-color: #06b6d4;
-    color: white;
-  }
-  .fade-out {
-    opacity: 0;
-    transition: opacity 0.7s ease;
-  }
-  .fade-in {
-    opacity: 1;
-    transition: opacity 0.7s ease;
-  }
-</style>
 
-<!-- Session Summary Modal -->
-<div id="session-summary-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
-    <h2 class="text-xl font-semibold text-gray-800">Session Summary</h2>
-    <form action="{{ url_for('submit_session_summary') }}" method="POST" class="space-y-4">
-      {{ form.hidden_tag() }}
-
-      <div>
-        <label for="subject" class="block text-sm font-medium text-gray-700">Subject Studied</label>
-        <select id="subject" name="subject" required
-                class="mt-1 w-full border rounded-md px-3 py-2 focus:ring-cyan-500 focus:border-cyan-500">
-          <option value="">Select a subject</option>
-          <option value="Mathematics">Mathematics</option>
-          <option value="Physics">Physics</option>
-          <option value="Chemistry">Chemistry</option>
-          <option value="Biology">Biology</option>
-          <option value="Computer Science">Computer Science</option>
-          <option value="Software Engineering">Software Engineering</option>
-          <option value="Data Science">Data Science</option>
-          <option value="Statistics">Statistics</option>
-          <option value="Finance">Finance</option>
-          <option value="Economics">Economics</option>
-          <option value="Accounting">Accounting</option>
-          <option value="Law">Law</option>
-          <option value="History">History</option>
-          <option value="Philosophy">Philosophy</option>
-          <option value="Psychology">Psychology</option>
-          <option value="Medicine">Medicine</option>
-          <option value="Engineering">Engineering</option>
-          <option value="Creative Writing">Creative Writing</option>
-          <option value="Language Learning">Language Learning</option>
-          <option value="General Productivity">General Productivity</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Productivity (%)</label>
-        <select name="productivity" class="mt-1 w-full border rounded-md px-3 py-2 focus:ring-cyan-500 focus:border-cyan-500" required>
-          <option value="">Select</option>
-          <option value="0">0%</option>
-          <option value="25">25%</option>
-          <option value="50">50%</option>
-          <option value="75">75%</option>
-          <option value="100">100%</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">How did you feel?</label>
-        <div id="mood-options" class="flex space-x-4 mt-2">
-          <button type="button" class="emoji-btn text-2xl" data-value="sad">😞</button>
-          <button type="button" class="emoji-btn text-2xl" data-value="neutral">😐</button>
-          <button type="button" class="emoji-btn text-2xl" data-value="happy">😊</button>
-        </div>
-        <input type="hidden" name="mood" id="mood-input" required>
-      </div>
-
-      <div class="flex justify-end space-x-3 pt-4">
-        <button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700">Submit</button>
-      </div>
-    </form>
-  </div>
-</div>
 {% endblock %}

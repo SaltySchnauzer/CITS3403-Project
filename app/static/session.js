@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   let startTime = null, timerInterval;
+  let sessionID = null;
   const timerEl     = document.getElementById("timer");
   const focusTimer  = document.getElementById("focus-timer");
   const startBtn    = document.getElementById("start-session");
@@ -33,15 +34,56 @@ document.addEventListener("DOMContentLoaded", () => {
       sessionWrapper.classList.add("hidden");
       focusMode.classList.remove("hidden");
     }, 700); // match fade-out duration
+
+    // Send POST req to server to get ID
+    startSession()
   });
+
+  // Set a request to the server to start a session
+  async function startSession(){
+    const payload = {
+      type: "start"
+    };
+
+    try {
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const session_json = await res.json();
+      sessionID = session_json["session"]["id"];
+    } catch (err) {
+      console.error("Session Start failed:", err);
+    }
+  }
+
+  // Attempt a session abort (cancel entirely)
+  async function abortSession(){
+    try {
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({id: sessionID, type:"abort"}),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const session_json = await res.json();
+      sessionID = session_json["session"]["id"];
+    } catch (err) {
+      console.error("Session Start failed:", err);
+    }
+  }
 
   async function endSessionAndShowSummary() {
     clearInterval(timerInterval);
     const endTime = Date.now();
+    if (sessionID == null){
+      throw new Error("Session ID not set, but session end called on client.");
+    }
     const payload = {
-      started_at: new Date(startTime).toISOString(),
-      ended_at: new Date(endTime).toISOString(),
-      duration: endTime - startTime,
+      type: "end",
+      id: sessionID
     };
 
     try {
@@ -52,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       if (!res.ok) throw new Error(await res.text());
       await res.json();
+      sessionID = null;
     } catch (err) {
       console.error("Save failed:", err);
     }
@@ -84,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (cancelBtn) {
     cancelBtn.addEventListener("click", () => {
       document.getElementById("session-summary-modal").classList.add("hidden");
+      abortSession()
     });
   }
 
@@ -110,4 +154,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const options = { dateStyle: "medium", timeStyle: "short" };
     el.textContent = `${start.toLocaleString(undefined, options)} → ${end.toLocaleTimeString(undefined, { timeStyle: "short" })}`;
   });
+
+
+  // Adds dynamic label to the productivity slider
+  const prod_desc = document.getElementById("prod_desc");
+  document.getElementById("prod_slider").oninput = function () {
+    if (this.value < 5){
+      prod_desc.textContent = "Nothing Done 😭"
+    } else if(this.value < 30){
+      prod_desc.textContent = "Did a little. 🫤"
+    } else if(this.value < 50){
+      prod_desc.textContent = "Did some."
+    } else if(this.value < 75){
+      prod_desc.textContent = "Did a fair bit."
+    } else if(this.value < 95){
+      prod_desc.textContent = "Did almost everything. 😎"
+    } else{
+      prod_desc.textContent = "Did everything!! 🥳"
+    }
+  };
+  document.getElementById("prod_slider").oninput()
 });

@@ -59,23 +59,32 @@ class User(UserMixin, db.Model):
 class Session(db.Model):
     __tablename__ = 'session'
 
-    id         = db.Column(db.Integer, primary_key=True)
-    name       = db.Column(db.String(100), nullable=True)  # Subject studied
-    started_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    ended_at   = db.Column(db.DateTime, nullable=False)
-    duration   = db.Column(db.Integer, nullable=False)  # in milliseconds
-    productivity = db.Column(db.Integer, nullable=True)  # 0, 25, 50, 75, 100
-    mood         = db.Column(db.String(10), nullable=True)  # 'sad', 'neutral', 'happy'
+    id              = db.Column(db.Integer, primary_key=True)
+    name            = db.Column(db.String(100), nullable=True)  # Subject studied
+    description     = db.Column(db.String(256), nullable=True)  # User entered description
+    task_type       = db.Column(db.String(32), nullable=True)
+    started_at      = db.Column(db.DateTime, nullable=False)
+    ended_at        = db.Column(db.DateTime, nullable=True)
+    duration        = db.Column(db.Integer, nullable=True)  # in milliseconds
+    productivity    = db.Column(db.Float, nullable=True)  # 0, 25, 50, 75, 100
+    mood            = db.Column(db.String(10), nullable=True)  # 'sad', 'neutral', 'happy'
+
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user    = db.relationship('User', back_populates='sessions')
-
+    
     def to_dict(self):
+        try:
+            t_end = self.ended_at.isoformat() # Has a chance to not exist - this is a safeguard to stop to_dict from failing
+        except:
+            t_end = ""
         return {
             'id':           self.id,
             'name':         self.name,
+            'description':  self.description,
+            'task_type':    self.task_type,
             'started_at':   self.started_at.isoformat(),
-            'ended_at':     self.ended_at.isoformat(),
+            'ended_at':     t_end,
             'duration':     self.duration,
             'user_id':      self.user_id,
             'productivity': self.productivity,

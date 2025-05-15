@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from flask_login import current_user, login_user, login_required, logout_user
 from app.models import User, Session
 from app.forms import LoginForm, RegistrationForm, SessionSummaryForm
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # -- pages --
@@ -25,37 +25,49 @@ def index():
 @login_required
 def session_page():
     form = SessionSummaryForm()
-    recent_sessions = current_user.sessions.order_by(Session.started_at.desc()).limit(6)
+    recent_sessions = current_user.sessions.where(Session.ended_at != "").order_by(Session.started_at.desc()).limit(6)
     return render_template('session.html', title='Session', form=form, recent_sessions=recent_sessions)
 
-
-
-# --- JSON Endpoint for saving data of completed sessions --- 
+# AJAX submission for session state
+# Allows for the client to completely disconnect and session to stay in state/running
 
 @app.route("/api/sessions", methods=["POST"])
 @login_required
 def api_sessions():
     data = request.get_json()
-    started = datetime.fromisoformat(data["started_at"].replace("Z", "+00:00"))
-    ended   = datetime.fromisoformat(data["ended_at"].replace("Z", "+00:00"))
+    match data["type"]:
+        case "start":
+            started = datetime.now(timezone.utc)
+            sess = Session(
+                started_at = started,
+                user_id    = current_user.id
+            )
+            db.session.add(sess)
+            db.session.commit()
+        case "end":
+            last_session = current_user.sessions.where(Session.id == data["id"]).first() # get relevant session
 
-    sess = Session(
-        name       = data.get("name"),
-        started_at = started,
-        ended_at   = ended,
-        duration   = data["duration"],
-        user_id    = current_user.id
-    )
-    db.session.add(sess)
-    db.session.commit()
+            # please do not change this timezone stuff, timezones are hell. I've lost upwards of two hours with this insanity.
+            # ping saltyschnauzer if you need this explained to you
+            endtime = datetime.now(timezone.utc)
+            last_session.ended_at = datetime.now(timezone.utc)
+            last_session.duration = (endtime - last_session.started_at.replace(tzinfo=timezone.utc)).total_seconds()
 
+            # Set some defaults in case they don't do the form
+            last_session.productivity = 50
+            last_session.name = "Un-named Session"
+            last_session.task_type = "Study"
+
+            db.session.commit() # update db
+
+            sess = last_session
+        case "abort":
+            last_session = current_user.sessions.order_by(Session.started_at.desc()).first()
+            if last_session.ended_at == "":
+                db.session.delete(last_session)
+            return 201
+                
     return jsonify(status="success", session=sess.to_dict()), 201
-
-
-
-
-
-
 
 
 @app.route("/submit-session-summary", methods=["POST"])
@@ -64,6 +76,8 @@ def submit_session_summary():
     subject = request.form.get("subject")
     productivity = request.form.get("productivity")
     mood = request.form.get("mood")
+    task_type = request.form.get("task_type")
+    description = request.form.get("description")
 
     last_session = current_user.sessions.order_by(Session.started_at.desc()).first()
 
@@ -72,8 +86,10 @@ def submit_session_summary():
         return redirect(url_for("session_page"))
 
     last_session.name = subject
-    last_session.productivity = int(productivity)
+    last_session.productivity = float(productivity)
     last_session.mood = mood
+    last_session.task_type = task_type
+    last_session.description = description
 
     db.session.commit()
     flash("Session summary saved!", "success")
