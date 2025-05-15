@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{title}} - Study Tracker</title>
-        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='tailwind.css')}}" />
+        <title>{{ title }} - Study Tracker</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tailwind.css') }}" />
         <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='StudyerFavicon.PNG') }}">
     </head>
-    <body class="{{bodycss}} bg-gray-50 antialiased text-gray-900">
+    <body class="{{ bodycss }} bg-gray-50 antialiased text-gray-900">
         <div class="flex flex-col {% if screen != 'scroll' %}min-h-screen{% endif %}">
 
             <div class="bg-gray-100 shadow-sm">
@@ -24,43 +24,54 @@
                         {% if current_user.is_anonymous %}
                             Welcome to Study Tracker!
                         {% else %}
-                            Welcome to Study Tracker, {{current_user.username}}!
+                            Welcome to Study Tracker, {{ current_user.username }}!
                         {% endif %}
                     </h1>
 
-                    <!-- Sign in Links -->
+                    <!-- Sign in / out Links -->
                     <div class="flex space-x-4">
                         {% if current_user.is_anonymous %}
-                            {% if url_for(request.endpoint) == '/signin' %}
-                                <a href="{{url_for('signup')}}" class="px-4 py-2 bg-white text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition">
+                            {% if request.endpoint == 'signin' %}
+                                <a href="{{ url_for('signup') }}"
+                                   class="px-4 py-2 bg-white text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition">
                                     Sign Up
                                 </a>
                             {% else %}
-                                <a href="{{url_for('signin')}}" class="px-4 py-2 bg-white text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition">
+                                <a href="{{ url_for('signin') }}"
+                                   class="px-4 py-2 bg-white text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition">
                                     Log In
                                 </a>
                             {% endif %}
                         {% else %}
-                            <a href="{{url_for('logout')}}" class="px-4 py-2 bg-white text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition">
+                            <a href="{{ url_for('logout') }}"
+                               class="px-4 py-2 bg-white text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition">
                                 Log Out
                             </a>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Navigation Bar Stuff -->
+                <!-- Navigation Bar -->
                 <div class="flex justify-center space-x-8 border-t border-gray-200 py-3">
-                    <a href="./" class="text-gray-700 hover:text-green-600 transition">
+                    <a href="{{ url_for('index') }}"
+                       class="text-gray-700 hover:text-green-600 transition">
                         Home
                     </a>
-                    <a href="./session" class="text-gray-700 hover:text-green-600 transition">
+                    <a href="{{ url_for('session_page') }}"
+                       class="text-gray-700 hover:text-green-600 transition">
                         Start a session
                     </a>
-                    <a href="./history" class="text-gray-700 hover:text-green-600 transition">
+                    <a href="{{ url_for('history') }}"
+                       class="text-gray-700 hover:text-green-600 transition">
                         History
                     </a>
-                    <a href="./leaderboard" class="text-gray-700 hover:text-green-600 transition">
+                    <a href="{{ url_for('leaderboard') }}"
+                       class="text-gray-700 hover:text-green-600 transition">
                         Leaderboard
+                    </a>
+                    <a href="{{ url_for('friends') }}"
+                       class="text-gray-700 hover:text-green-600 transition">
+                        Friends
                     </a>
                 </div>
             </div>

@@ -9,7 +9,7 @@ from app import app, db
 import sqlalchemy as sa
 from flask_login import current_user, login_user, login_required, logout_user
 from app.models import User, Session
-from app.forms import LoginForm, RegistrationForm, SessionSummaryForm
+from app.forms import LoginForm, RegistrationForm, SessionSummaryForm, FriendSearchForm
 from datetime import datetime
 
 
@@ -84,12 +84,87 @@ def submit_session_summary():
 @login_required
 def leaderboard():
     users = db.session.scalars(sa.select(User)).all()
-    return render_template('friends.html', title='Friends', leaderboard = users)
+    return render_template('leaderboard.html', title='Friends', leaderboard = users)
 
 @app.route('/history')
 @login_required
 def history():
     return render_template('history.html', title='History')
+
+
+
+@app.route('/friends', methods=['GET', 'POST'])
+@login_required
+def friends():
+    form = FriendSearchForm()
+
+    # — POST: add a friend by username —
+    if form.validate_on_submit():
+        other = User.query.filter_by(username=form.username.data).first()
+        if not other:
+            flash('User not found.', 'warning')
+        elif other.id == current_user.id:
+            flash("You can’t add yourself.", 'warning')
+        else:
+            current_user.add_friend(other)
+            db.session.commit()
+            flash(f"You are now sharing with {other.username}!", 'success')
+        return redirect(url_for('friends'))
+
+    # — GET: list of User objects you’ve added (i.e. “friends”) —
+    friends = current_user.friends.order_by(User.username).all()
+
+    # pick selected friend by ?friend_id= or default to the first one
+    fid = request.args.get('friend_id', type=int)
+    if not fid and friends:
+        fid = friends[0].id
+    selected = User.query.get_or_404(fid) if fid else None
+
+    # —— analytics computation —— 
+    total_sessions = 0
+    total_time_ms   = 0
+    avg_duration_ms = 0
+
+    # distribution buckets
+    prod_labels = [0, 25, 50, 75, 100]
+    prod_counts = [0] * len(prod_labels)
+    mood_labels = ['sad', 'neutral', 'happy']
+    mood_counts = [0] * len(mood_labels)
+
+    if selected:
+        sessions = selected.sessions.order_by(Session.started_at).all()
+        total_sessions = len(sessions)
+        total_time_ms = sum(s.duration for s in sessions)
+        avg_duration_ms = (total_time_ms // total_sessions) if total_sessions else 0
+
+        for s in sessions:
+            if s.productivity in prod_labels:
+                prod_counts[prod_labels.index(s.productivity)] += 1
+            if s.mood in mood_labels:
+                mood_counts[mood_labels.index(s.mood)] += 1
+
+    # convert to human units
+    total_hours = round(total_time_ms / 3_600_000, 2)   # ms → hours
+    avg_minutes = round(avg_duration_ms / 60_000, 1)    # ms → minutes
+
+    return render_template(
+        'friends.html',
+        title='Friends',
+        form=form,
+        friends=friends,
+        selected=selected,
+        total_sessions=total_sessions,
+        total_hours=total_hours,
+        avg_minutes=avg_minutes,
+        productivity_data={
+            'labels': prod_labels,
+            'counts': prod_counts
+        },
+        mood_data={
+            'labels': mood_labels,
+            'counts': mood_counts
+        }
+    )
 
 
 # --- Authentication Pages ---
