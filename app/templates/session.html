@@ -1,36 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="flex flex-col items-center justify-center py-8 space-y-4">
-    <div class="text-xl font-mono">
+  <div class="flex flex-col items-center justify-center py-10 space-y-6">
+    <div class="text-2xl font-mono text-gray-800">
       Elapsed: <span id="timer">00:00</span>
     </div>
-    <div>
+
+    <div class="flex space-x-4">
       <button id="start-session"
-              class="px-6 py-3 bg-cyan-600 text-white rounded-full">
+              class="px-6 py-3 rounded-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
         Start Session
       </button>
       <button id="end-session"
-              class="px-6 py-3 bg-red-500 text-white rounded-full ml-4"
+              class="px-6 py-3 rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled>
         End Session
       </button>
     </div>
   </div>
 
-  <h2 class="mt-8 text-lg font-semibold">Previous sessions:</h2>
-  <div class="space-y-1">
-    {% for s in current_user.sessions %}
-      <div>
-        {{ s.name or "Session" }}, 
-        {{ s.started_at.strftime("%Y-%m-%d %H:%M") }} – 
-        {{ s.ended_at.strftime("%Y-%m-%d %H:%M") }}
+  <div class="max-w-3xl mx-auto mt-10 px-4">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Previous Sessions</h2>
+    
+    {% if current_user.sessions %}
+      <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+        {% for s in current_user.sessions %}
+          <div class="bg-white rounded-xl shadow-md p-4 border border-gray-200">
+            <div class="font-semibold text-gray-700">{{ s.name or "Session" }}</div>
+            <div class="text-sm text-gray-500 mt-1">
+              {{ s.started_at.strftime("%b %d, %Y %I:%M %p") }} → 
+              {{ s.ended_at.strftime("%I:%M %p") }}
+            </div>
+          </div>
+        {% endfor %}
       </div>
     {% else %}
-      <div class="italic text-gray-500">No sessions yet.</div>
-    {% endfor %}
+      <div class="text-gray-500 italic">No sessions yet.</div>
+    {% endif %}
   </div>
 
   <script src="{{ url_for('static', filename='session.js') }}"></script>
-  
 {% endblock %}
