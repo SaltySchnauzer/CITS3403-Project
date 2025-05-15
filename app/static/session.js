@@ -1,6 +1,5 @@
 // JS for dynamically rendering sessions and posting data via JSON
 
-
 document.addEventListener("DOMContentLoaded", () => {
   let startTime = null, timerInterval;
   const timerEl   = document.getElementById("timer");
@@ -8,8 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const endBtn    = document.getElementById("end-session");
 
   function fmt(ms) {
-    const s = Math.floor(ms/1000)%60, m = Math.floor(ms/60000);
-    return `${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+    const s = Math.floor(ms / 1000) % 60,
+          m = Math.floor(ms / 60000);
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   }
 
   startBtn.addEventListener("click", () => {
@@ -52,12 +52,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (modal) {
       modal.classList.remove("hidden");
     }
-    });
+  });
 
-    const cancelBtn = document.getElementById("cancel-modal");
-    if (cancelBtn) {
-      cancelBtn.addEventListener("click", () => {
-        document.getElementById("session-summary-modal").classList.add("hidden");
-      });
-    }
+  // ✅ Cancel modal handler
+  const cancelBtn = document.getElementById("cancel-modal");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      document.getElementById("session-summary-modal").classList.add("hidden");
+    });
+  }
+
+  // ✅ Mood button selection handling
+  const emojiButtons = document.querySelectorAll(".emoji-btn");
+  const moodInput = document.getElementById("mood-input");
+
+  emojiButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Remove selection from all
+      emojiButtons.forEach((b) => b.classList.remove("selected"));
+      // Highlight selected
+      button.classList.add("selected");
+      // Set hidden input value
+      moodInput.value = button.dataset.value;
+    });
+  });
 });
