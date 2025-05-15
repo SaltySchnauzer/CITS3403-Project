@@ -24,12 +24,14 @@
     
     {% if current_user.sessions %}
       <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-        {% for s in current_user.sessions %}
+        {% for s in recent_sessions %}
           <div class="bg-white rounded-xl shadow-md p-4 border border-gray-200">
             <div class="font-semibold text-gray-700">{{ s.name or "Session" }}</div>
             <div class="text-sm text-gray-500 mt-1">
-              {{ s.started_at.strftime("%b %d, %Y %I:%M %p") }} → 
-              {{ s.ended_at.strftime("%I:%M %p") }}
+              <span class="session-time" 
+                    data-start="{{ s.started_at.isoformat() }}" 
+                    data-end="{{ s.ended_at.isoformat() }}">
+              </span>
             </div>
           </div>
         {% endfor %}

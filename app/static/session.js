@@ -47,14 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
     startBtn.disabled = false;
     endBtn.disabled = true;
 
-    // ✅ SHOW the summary modal
+    //  SHOW the summary modal
     const modal = document.getElementById("session-summary-modal");
     if (modal) {
       modal.classList.remove("hidden");
     }
   });
 
-  // ✅ Cancel modal handler
+  //  Cancel modal handler
   const cancelBtn = document.getElementById("cancel-modal");
   if (cancelBtn) {
     cancelBtn.addEventListener("click", () => {
@@ -62,18 +62,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ✅ Mood button selection handling
+  //  Mood button selection handling
   const emojiButtons = document.querySelectorAll(".emoji-btn");
   const moodInput = document.getElementById("mood-input");
 
   emojiButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      // Remove selection from all
       emojiButtons.forEach((b) => b.classList.remove("selected"));
-      // Highlight selected
       button.classList.add("selected");
-      // Set hidden input value
       moodInput.value = button.dataset.value;
     });
+  });
+
+  //  Convert session times to local timezone
+  document.querySelectorAll(".session-time").forEach(el => {
+    const start = new Date(el.dataset.start);
+    const end = new Date(el.dataset.end);
+    if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
+      el.textContent = "Invalid date";
+      return;
+    }
+
+    const options = { dateStyle: "medium", timeStyle: "short" };
+    el.textContent = `${start.toLocaleString(undefined, options)} → ${end.toLocaleTimeString(undefined, { timeStyle: "short" })}`;
   });
 });

@@ -25,7 +25,8 @@ def index():
 @login_required
 def session_page():
     form = SessionSummaryForm()
-    return render_template('session.html', title='Session', form=form)
+    recent_sessions = current_user.sessions.order_by(Session.started_at.desc()).limit(6)
+    return render_template('session.html', title='Session', form=form, recent_sessions=recent_sessions)
 
 
 
