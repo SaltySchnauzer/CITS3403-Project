@@ -1,9 +1,8 @@
 from flask import Flask
-
-
 from flask_sqlalchemy import SQLAlchemy # Database and configuration
 from flask_migrate import Migrate
 from app.config import Config
+from flask_login import LoginManager
 
 db = SQLAlchemy()
 login = LoginManager()

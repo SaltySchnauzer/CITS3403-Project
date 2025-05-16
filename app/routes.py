@@ -23,7 +23,7 @@ import sqlalchemy as sa                                                         
 
 
 # App-specific modules
-from app import app, db                                                                 # Flask app instance and database
+from app import db                                                                      # Flask app instance and database
 from app.models import User, Session                                                    # Database models
 from app.forms import LoginForm, RegistrationForm, SessionSummaryForm, FriendSearchForm # WTForms definitions
 
