@@ -20,11 +20,13 @@ lalala description or something
     1. `flask db init` - to create migrations versioning folder + .db
     2. `flask db migrate -m "Initial Models"` - to automatically create scripts to update tables to latest model definitions
     3. `flask db upgrade` - to push the latest tables to your .db
-3. Run flask application with `flask run --debug`
-4. Run the tailwind css compiler `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
-    - This isn't neccessary if there are no CSS edits planned.
+3. Run the Tailwind CSS compiler (in a separate duplicate terminal) `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
+    - This isn't only necessary for updating CSS updates. Not required for simple set-up.
+4. Run flask application with `flask run --debug`
 
-If the database begins to bug out, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
+
+
+Exception: If the database really doesn't seem to be working, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
 
 ### Tests
 #### Unit Tests
