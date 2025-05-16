@@ -42,7 +42,7 @@
                     {{s.mood}}
                 </div>
                 <div>
-                    Productivity: {{s.productivity|round(0)|int}}%
+                    Productivity: {{ (s.productivity or 50)|round(0)|int }}
                 </div>
             </div>
         </div>
