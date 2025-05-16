@@ -20,11 +20,19 @@ lalala description or something
     1. `flask db init` - to create migrations versioning folder + .db
     2. `flask db migrate -m "Initial Models"` - to automatically create scripts to update tables to latest model definitions
     3. `flask db upgrade` - to push the latest tables to your .db
-3. Run flask application with `flask run --debug`
-4. Run the tailwind css compiler `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
-    - This isn't neccessary if there are no CSS edits planned.
+3. Run the Tailwind CSS compiler (in a separate duplicate terminal) `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
+    - This isn't only necessary for updating CSS updates. Not required for simple set-up.
+4. Run flask application with `flask run --debug`
 
-If the database begins to bug out, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
+
+
+Exception: If the database really doesn't seem to be working, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
+
+### Tests
+#### Unit Tests
+1. `python -m unittest tests.py`
+
+#### Selinium Tests
 
 ### Current packages in use
 - Flask
@@ -35,5 +43,17 @@ If the database begins to bug out, hard reset it by deleting the `migrations` fo
 - Tailwind (CLI)
     - A CSS formatter
     - Typically depends on Node Package Manager - but because our backend is currently only python, we've opted for an independent cli
-
-- need to add SQL and SQLalchemy stuff. 
+- SQLAlchemy
+    - Backbone of interacting with an SQL database
+- Flask-Login
+    - Handles user sessions + authentication
+- werkzeug-security
+    - Password hashing/salting
+- Flask-Migrate
+    - Database migrations
+- Flask-WTF
+    - Webforms
+    - Prevents CRSF attacks by including a secret key to authenticate it
+- unittests
+    - Included within python
+    - Used for unit testing

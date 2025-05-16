@@ -32,18 +32,18 @@
                     <div class="flex space-x-4">
                         {% if current_user.is_anonymous %}
                             {% if request.endpoint == 'signin' %}
-                                <a href="{{ url_for('signup') }}"
+                                <a href="{{ url_for('main.signup') }}"
                                    class="px-4 py-2 bg-white text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition">
                                     Sign Up
                                 </a>
                             {% else %}
-                                <a href="{{ url_for('signin') }}"
+                                <a href="{{ url_for('main.signin') }}"
                                    class="px-4 py-2 bg-white text-green-600 border border-green-600 rounded-md hover:bg-green-50 transition">
                                     Log In
                                 </a>
                             {% endif %}
                         {% else %}
-                            <a href="{{ url_for('logout') }}"
+                            <a href="{{ url_for('main.logout') }}"
                                class="px-4 py-2 bg-white text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition">
                                 Log Out
                             </a>
@@ -53,23 +53,23 @@
 
                 <!-- Navigation Bar -->
                 <div class="flex justify-center space-x-8 border-t border-gray-200 py-3">
-                    <a href="{{ url_for('index') }}"
+                    <a href="{{ url_for('main.index') }}"
                        class="text-gray-700 hover:text-green-600 transition">
                         Home
                     </a>
-                    <a href="{{ url_for('session_page') }}"
+                    <a href="{{ url_for('main.session_page') }}"
                        class="text-gray-700 hover:text-green-600 transition">
                         Start a session
                     </a>
-                    <a href="{{ url_for('history') }}"
+                    <a href="{{ url_for('main.history') }}"
                        class="text-gray-700 hover:text-green-600 transition">
                         History
                     </a>
-                    <a href="{{ url_for('analytics') }}"
+                    <a href="{{ url_for('main.leaderboard') }}"
                        class="text-gray-700 hover:text-green-600 transition">
                         Analytics
                     </a>
-                    <a href="{{ url_for('friends') }}"
+                    <a href="{{ url_for('main.friends') }}"
                        class="text-gray-700 hover:text-green-600 transition">
                         Friends
                     </a>

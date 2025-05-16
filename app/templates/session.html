@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if sessionID is defined %}
+{% if sessionID != "" %}
 <script>
   const oldSession = {{sessionID}};
 </script>

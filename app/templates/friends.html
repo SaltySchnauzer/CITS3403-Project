@@ -75,7 +75,7 @@
         {% for friend in friends %}
         <li>
           <a
-            href="{{ url_for('friends', friend_id=friend.id) }}"
+            href="{{ url_for('main.friends', friend_id=friend.id) }}"
             class="block px-4 py-2 rounded {{ 'bg-blue-50 font-semibold' if selected and friend.id==selected.id else 'hover:bg-gray-100' }}"
           >
             {{ friend.username }}

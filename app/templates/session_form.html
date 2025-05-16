@@ -26,7 +26,7 @@
 <div id="session-summary-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
   <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
     <h2 class="text-xl font-semibold text-gray-800">Session Summary</h2>
-    <form action="{{ url_for('submit_session_summary') }}" method="POST" class="space-y-4">
+    <form action="{{ url_for('main.submit_session_summary') }}" method="POST" class="space-y-4">
       {{ form.hidden_tag() }} <!-- Prevent CSRF attacks by using hidden field -->
 
       <div>

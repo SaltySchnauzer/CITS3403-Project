@@ -39,7 +39,7 @@
         <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
         <p>{{ form.submit(class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg") }}</p>
         <p class="text-center text-sm text-gray-600 mt-4">
-            Don't have an account? <a href="{{ url_for('signup') }}" class="text-blue-600 hover:underline hover:text-blue-700">Sign Up</a>
+            Don't have an account? <a href="{{ url_for('main.signup') }}" class="text-blue-600 hover:underline hover:text-blue-700">Sign Up</a>
         </p>
     </form>
 </div>
