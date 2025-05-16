@@ -7,7 +7,11 @@ import datetime
 testApp = create_app(TestConfig)
 
 def add_test_data():
-    db.session.add(User(id='0', username='Test Dummy'))
+    u = User(id='0', username='Test Dummy')
+    u2 = User(id='1', username='Test Dummy The Second')
+    db.session.add(u, u2)
+    u.add_friend(u2)
+    u2.add_friend(u)
     s = Session(
         id = 0,
         started_at = datetime.datetime(2025, 1, 1, 10, 0, 0, 0),
@@ -48,5 +52,17 @@ class BasicTests(TestCase):
     def test_check_duration(self):
         u = db.session.get(User, 0)
         s = u.sessions.where(Session.id == '0').first()
-        print(s.duration)
         self.assertTrue(s.duration == 3600)
+
+    # Do friends get added correctly?
+    def test_friends_add(self):
+        u = db.session.get(User, 0)
+        test_u = u.friends.where(User.username == "Test Dummy The Second").one()
+        self.assertTrue(test_u.id == 1)
+
+    def test_mutual_friends(self):
+        u_i = db.session.get(User, 0)
+        shared_ids  = {u.id for u in u_i.shared_with}
+        sharers_ids = {u.id for u in u_i.shared_by}
+        mutual_ids  = shared_ids & sharers_ids
+        self.assertTrue(mutual_ids.__contains__(1))
