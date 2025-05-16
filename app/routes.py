@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from flask_login import current_user, login_user, login_required, logout_user
 from app.models import User, Session
 from app.forms import LoginForm, RegistrationForm, SessionSummaryForm, FriendSearchForm
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta, date
 
 
 
@@ -124,11 +124,65 @@ def submit_session_summary():
     return redirect(url_for("session_page"))  # reloads session page with updated info
 
 
-@app.route('/leaderboard')
+
+
+
+
+
+
+@app.route('/analytics')
 @login_required
-def leaderboard():
-    users = db.session.scalars(sa.select(User)).all()
-    return render_template('leaderboard.html', title='Friends', leaderboard=users)
+def analytics():
+    sessions = current_user.sessions.all()
+
+    today = date.today()
+    weekly_data = {}
+    for i in range(7):
+        day = today - timedelta(days=6 - i)
+        total_ms = sum(
+            (s.duration or 0)
+            for s in sessions
+            if s.ended_at and s.started_at.date() == day
+        )
+        # ← divide by 60 000 to get minutes
+        weekly_data[day.isoformat()] = round(total_ms / 60_000, 2)
+
+    rating_data = {}
+    for i in range(7):
+        day = today - timedelta(days=6 - i)
+        vals = [
+            s.productivity
+            for s in sessions
+            if s.ended_at
+               and s.started_at.date() == day
+               and s.productivity is not None
+        ]
+        rating_data[day.isoformat()] = round(sum(vals) / len(vals), 2) if vals else 0
+
+    # pie by subject name now
+    subject_data = {}
+    for s in sessions:
+        if s.ended_at and s.name:
+            mins = (s.duration or 0) / 60_000
+            subject_data[s.name] = subject_data.get(s.name, 0) + mins
+
+    return render_template(
+        'analytics.html',
+        weekly_data=weekly_data,
+        rating_data=rating_data,
+        topic_data=subject_data    # renamed to subject_data
+    )
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/history')

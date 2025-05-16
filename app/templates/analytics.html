@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-10">
+
+    <!-- Analytics Section -->
+    <div class="mb-16">
+        <div class="flex flex-col md:flex-row md:space-x-6 space-y-10 md:space-y-0 justify-center">
+            <!-- Weekly Study Hours -->
+            <div class="bg-white rounded-xl shadow p-6 max-w-md w-full mx-auto">
+                <h3 class="text-xl font-semibold mb-4 text-center">Weekly Study Minutes</h3>
+                <canvas id="weeklyChart" height="180"></canvas>
+            </div>
+
+            <!-- Weekly Ratings -->
+            <div class="bg-white rounded-xl shadow p-6 max-w-md w-full mx-auto">
+                <h3 class="text-xl font-semibold mb-4 text-center">Weekly Study Ratings</h3>
+                <canvas id="ratingChart" height="180"></canvas>
+            </div>
+        </div>
+
+        <!-- Pie Chart (below the two) -->
+        <div class="bg-white rounded-xl shadow p-6 max-w-lg w-full mx-auto mt-10">
+            <h3 class="text-xl font-semibold mb-4 text-center">Time Spent per Subject</h3>
+            <canvas id="topicChart" width="250" height="250"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Injected JSON data -->
+<script id="weeklyDataJSON" type="application/json">
+    {{ weekly_data | tojson }}
+</script>
+<script id="ratingDataJSON" type="application/json">
+    {{ rating_data | tojson }}
+</script>
+<script id="topicDataJSON" type="application/json">
+    {{ topic_data  | tojson }}
+</script>
+
+<script>
+    // Parse JSON
+    const weeklyData = JSON.parse(document.getElementById("weeklyDataJSON").textContent);
+    const ratingData = JSON.parse(document.getElementById("ratingDataJSON").textContent);
+    const topicData  = JSON.parse(document.getElementById("topicDataJSON").textContent);
+
+    // Weekly Study Hours
+    new Chart(document.getElementById('weeklyChart'), {
+        type: 'line',
+        data: {
+            labels: Object.keys(weeklyData),
+            datasets: [{
+                label: 'Hours Studied',
+                data: Object.values(weeklyData),
+                fill: true,
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Weekly Study Ratings
+    new Chart(document.getElementById('ratingChart'), {
+        type: 'line',
+        data: {
+            labels: Object.keys(ratingData),
+            datasets: [{
+                label: 'Average Rating (0–5)',
+                data: Object.values(ratingData),
+                fill: true,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 0,
+                    max: 5,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // Time Spent per Topic
+    new Chart(document.getElementById('topicChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(topicData),
+            datasets: [{
+                data: Object.values(topicData),
+                backgroundColor: ['#38bdf8', '#a312e6', '#f59e0b', '#10b981']
+            }]
+        }
+    });
+</script>
+{% endblock %}
