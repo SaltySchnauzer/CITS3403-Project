@@ -92,7 +92,7 @@ def history():
 @login_required
 def friends_search():
     q = request.args.get('q', '').strip()
-    if len(q) < 2:
+    if len(q) < 1:
         return jsonify([])
     matches = User.query.filter(
         User.username.ilike(f'%{q}%'),
