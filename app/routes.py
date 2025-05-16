@@ -29,10 +29,79 @@ def leaderboard():
     users = db.session.scalars(sa.select(User)).all()
     return render_template('friends.html', title='Friends', leaderboard = users)
 
+# @app.route('/history')
+# @login_required
+# def history():
+# 	# place holder data until connected to the db
+# 	weekly_data = {
+# 		"Monday": 2,
+# 		"Tuesday": 1.5,
+# 		"Wednesday": 3,
+# 		"Thursday": 0,
+# 		"Friday": 2.5,
+# 		"Saturday": 4,
+#         "Sunday" : 1
+# 	}
+
+#     rating_data = {
+#         "Monday": 4,
+#         "Tuesday" 3,
+#         "Wednesday": 5,
+#         "Thursday": 0,
+#         "Friday": 2,
+#         "Saturday": 4,
+#         "Sunday": 3
+#     }
+
+# 	topic_data = {
+#         "Math": 5,
+# 		"Science": 3,
+# 		"History": 2,
+# 		"Litrature": 4
+# 	}
+
+
+
+# 	return render_template('history.html', title='History', weekly_data=weekly_data, rating_data=rating_data, topic_data=topic_data)
 @app.route('/history')
 @login_required
 def history():
-    return render_template('history.html', title='History')
+    # Placeholder values
+    weekly_data = {
+        "Monday": 2,
+        "Tuesday": 1.5,
+        "Wednesday": 3,
+        "Thursday": 0,
+        "Friday": 2.5,
+        "Saturday": 4,
+        "Sunday": 1
+    }
+
+    rating_data = {
+        "Monday": 4,
+        "Tuesday": 3,
+        "Wednesday": 5,
+        "Thursday": 0,
+        "Friday": 2,
+        "Saturday": 4,
+        "Sunday": 3
+    }
+
+    topic_data = {
+        "Math": 5,
+        "Science": 3,
+        "History": 2,
+        "Literature": 4
+    }
+
+    return render_template("history.html", 
+        weekly_data=weekly_data,
+        rating_data=rating_data,
+        topic_data=topic_data)
+
+
+
+
 
 
 # --- Authentication Pages ---

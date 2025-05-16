@@ -1,27 +1,154 @@
 {% extends "base.html" %}
 
-{%block content %}
-    <div class="font-bold flex items-center justify-center text-4xl m-20">
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-10">
+
+    <!-- History Section -->
+    <div class="font-bold text-4xl text-center mb-8">
         Your History:
     </div>
+
+    <!-- Analytics Section -->
+    <div class="mb-16">
+        <!-- <h2 class="text-3xl font-bold mb-8 text-center">Your Study Analytics</h2>
+
+        <!-- Charts in Responsive Flexbox -->
+        <div class="flex flex-col md:flex-row md:space-x-6 space-y-10 md:space-y-0 justify-center">
+            <!-- Weekly Study Hours -->
+            <div class="bg-white rounded-xl shadow p-6 max-w-md w-full mx-auto">
+                <h3 class="text-xl font-semibold mb-4 text-center">Weekly Study Hours</h3>
+                <canvas id="weeklyChart" height="180"></canvas>
+            </div>
+
+            <!-- Weekly Ratings -->
+            <div class="bg-white rounded-xl shadow p-6 max-w-md w-full mx-auto">
+                <h3 class="text-xl font-semibold mb-4 text-center">Weekly Study Ratings</h3>
+                <canvas id="ratingChart" height="180"></canvas>
+            </div>
+        </div>
+
+
+        
+        <!-- Pie Chart (below the two) -->
+         <!-- Tailwind: max-w-xs (smaller max width), mx-auto centers it -->
+        <div class="bg-white rounded-xl shadow p-6 max-w-lg w-full mx-auto mt-10">
+            <h3 class="text-xl font-semibold mb-4 text-center">Time Spent per Topic</h3>
+            <canvas id="topicChart" width="250" height="250"></canvas>
+        </div>
+    </div>
+
+
+
     {% for session in current_user.sessions %}
-    <div class="m-12 p-4 rounded-full bg-amber-200 grid grid-cols-4">
+    <div class="m-6 p-4 rounded-full bg-amber-200 grid grid-cols-4">
         <div>
             {% if session.name == '' %}
-            <i>Untitled</i>
+                <i>Untitled</i>
             {% else %}
-            {{session.name}}
+                {{ session.name }}
             {% endif %}
         </div>
         <div>
-            {{session.start}}
+            {{ session.start }}
         </div>
         <div>
-            {{session.end}}
+            {{ session.end }}
         </div>
         <div>
-            {{session.duration}}
+            {{ session.duration }}
         </div>
     </div>
     {% endfor %}
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Injected JSON data into the DOM as <script type="application/json"> elements -->
+<!-- This avoids VS Code errors and improves security against cross site scripting -->
+
+<!-- Weekly hours data -->
+<script id="weeklyDataJSON" type="application/json">
+    {{ weekly_data | tojson }}
+</script>
+
+<!-- Rating data: average rating per day -->
+<script id="ratingDataJSON" type="application/json">
+    {{ rating_data | tojson }}
+</script>
+
+<!-- Study topic breakdown data -->
+<script id="topicDataJSON" type="application/json">
+    {{ topic_data | tojson }}
+</script>
+
+<script>
+    // Parse JSON from hidden <script> tags — this avoids inline JS errors and helps debugging
+    const weeklyData = JSON.parse(document.getElementById("weeklyDataJSON").textContent);
+    const ratingData = JSON.parse(document.getElementById("ratingDataJSON").textContent);
+    const topicData = JSON.parse(document.getElementById("topicDataJSON").textContent);
+    
+
+    // Line Chart: Weekly Study Hours
+    new Chart(document.getElementById('weeklyChart'), {
+        type: 'line',
+        data: {
+            labels: Object.keys(weeklyData),
+            datasets: [{
+                label: 'Hours Studied',
+                data: Object.values(weeklyData),
+                fill: true,
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Ratings Chart (1–5 scale)
+    new Chart(document.getElementById('ratingChart'), {
+        type: 'line',
+        data: {
+            labels: Object.keys(ratingData),
+            datasets: [{
+                label: 'Average Rating (0–5)',
+                data: Object.values(ratingData),
+                fill: true,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 0,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    
+
+    // Pie Chart: Time Spent per Topic
+    new Chart(document.getElementById('topicChart'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(topicData),
+            datasets: [{
+                data: Object.values(topicData),
+                backgroundColor: ['#38bdf8', '#a312e6', '#f59e0b', '#10b981']
+            }]
+        }            
+    });
+</script>
 {% endblock %}
