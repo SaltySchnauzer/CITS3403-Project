@@ -1,0 +1,92 @@
+<style>
+  .emoji-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .emoji-btn:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+  }
+  .emoji-btn.selected {
+    background-color: #06b6d4;
+    color: white;
+  }
+  .fade-out {
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+  .fade-in {
+    opacity: 1;
+    transition: opacity 0.7s ease;
+  }
+</style>
+
+<!-- Session Summary Modal -->
+<div id="session-summary-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
+    <h2 class="text-xl font-semibold text-gray-800">Session Summary</h2>
+    <form action="{{ url_for('submit_session_summary') }}" method="POST" class="space-y-4">
+      {{ form.hidden_tag() }}
+
+      <div>
+        <label for="subject" class="block text-sm font-medium text-gray-700">Subject Studied</label>
+        <select id="subject" name="subject" required
+                class="mt-1 w-full border rounded-md px-3 py-2 focus:ring-cyan-500 focus:border-cyan-500">
+          <option value="">Select a subject</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Physics">Physics</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Biology">Biology</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Software Engineering">Software Engineering</option>
+          <option value="Data Science">Data Science</option>
+          <option value="Statistics">Statistics</option>
+          <option value="Finance">Finance</option>
+          <option value="Economics">Economics</option>
+          <option value="Accounting">Accounting</option>
+          <option value="Law">Law</option>
+          <option value="History">History</option>
+          <option value="Philosophy">Philosophy</option>
+          <option value="Psychology">Psychology</option>
+          <option value="Medicine">Medicine</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Creative Writing">Creative Writing</option>
+          <option value="Language Learning">Language Learning</option>
+          <option value="General Productivity">General Productivity</option>
+        </select>
+      </div>
+
+      <div>
+        {{form.productivity.label}} <br>
+        {{form.productivity(class="w-full", id="prod_slider")}}
+        <div id = "prod_desc" class="text-center">
+            javascript is thinking...
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">How did you feel?</label>
+        <div id="mood-options" class="flex space-x-4 mt-2 m-auto">
+          <button type="button" class="emoji-btn text-2xl" data-value="sad">😞</button>
+          <button type="button" class="emoji-btn text-2xl" data-value="neutral">😐</button>
+          <button type="button" class="emoji-btn text-2xl" data-value="happy">😊</button>
+        </div>
+        <input type="hidden" name="mood" id="mood-input" required>
+      </div>
+
+      <div>{{form.description.label(class = "text-sm text-gray-700")}}</div>
+      <div>{{form.description(class = "bg-gray-400/50 w-full")}}</div>
+
+      <div>
+        {{form.task_type.label(class = "text-sm text-gray-700")}}<br>
+        {{form.task_type(class = "m-auto")}}
+      </div>
+      
+      <div class="flex justify-end space-x-3 pt-4">
+        <button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+

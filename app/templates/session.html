@@ -1,16 +1,102 @@
 {% extends "base.html" %}
 
-{%block content %}
-    <div class="flex items-center justify-center">
-        <button class="bg-cyan-600 rounded-full size-80 m-12">
-        i am the start button
-        </button>
+
+
+{% block content %}
+{% if sessionID is defined %}
+<script>
+  const oldSession = {{sessionID}};
+</script>
+{% endif %}
+
+<!-- Original layout (fades out) -->
+<div id="session-wrapper" class="transition-opacity duration-700">
+  <div id="session-header" class="flex flex-col items-center justify-center py-10 space-y-6">
+    <div class="text-2xl font-mono text-gray-800">
+      Elapsed: <span id="timer">00:00</span>
     </div>
-    Previous sessions:
-    {% for session in current_user.sessions %}
-    <div>
-        {{session.name}}, {{session.start}} - {{session.end}}
+
+    <!-- For any flashed messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-4 p-2 rounded text-center 
+                            {% if category == 'danger' %} text-red-800 bg-red-400
+                            {% elif category == 'success' %} text-green-800 bg-green-400
+                            {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="flex space-x-4">
+      <button id="start-session"
+              class="px-6 py-3 rounded-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
+        Start Session
+      </button>
+      <button id="end-session"
+              class="px-6 py-3 rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled>
+        End Session
+      </button>
     </div>
-    {% endfor %}
-   
+  </div>
+
+  <div id="previous-sessions" class="max-w-3xl mx-auto mt-10 px-4">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Previous Sessions</h2>
+    
+    {% if current_user.sessions %}
+      <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+        {% for s in recent_sessions %}
+          <div class="bg-white rounded-xl shadow-md p-4 border border-gray-200">
+            <div class="font-semibold text-gray-700">{{ s.name or "Session" }}</div>
+            <div class="text-sm text-gray-500 mt-1">
+              <span class="session-time" 
+                    data-start="{{ s.started_at.isoformat() }}" 
+                    data-end="{{ s.ended_at.isoformat() }}">Loading...</span>: {{(s.duration/60)|round(0) | int}} mins
+            </div>
+            <div class = "italic text-sm">
+              {% if s.description == '' %}
+              ㅤ {# whitespace to keep formatting consistent #}
+              {% else %}
+              {{s.description}}
+              {% endif %}
+            </div>
+            <div class="text-sm">
+              Productivity: {{s.productivity|round|int}}%
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-gray-500 italic">No sessions yet.</div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Focus Mode Layout (initially hidden) -->
+<div id="focus-mode" class="hidden h-screen flex items-center justify-center px-6 space-x-6">
+  <div class="w-1/2 text-center space-y-4">
+    <div class="text-3xl font-mono text-gray-800">
+      Elapsed: <span id="focus-timer">00:00</span>
+    </div>
+    <div class="flex justify-center space-x-4">
+      <button id="focus-end"
+              class="px-6 py-3 rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold shadow-md transition">
+        End Session
+      </button>
+    </div>
+  </div>
+  <div class="w-3/5 flex justify-center items-center">
+    <img src="{{ url_for('static', filename='study5.gif') }}" alt="Study Visual"
+        class="max-h-[80vh] object-contain">
+  </div>
+</div>
+
+{% include 'session_form.html' %}
+
+<script src="{{ url_for('static', filename='session.js') }}"></script>
+
+
 {% endblock %}
