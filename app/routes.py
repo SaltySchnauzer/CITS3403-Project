@@ -29,8 +29,7 @@ def session_page():
     return render_template('session.html', title='Session', form=form, recent_sessions=recent_sessions)
 
 
-
-# --- JSON Endpoint for saving data of completed sessions --- 
+# --- JSON Endpoint for saving data of completed sessions ---
 
 @app.route("/api/sessions", methods=["POST"])
 @login_required
@@ -52,12 +51,6 @@ def api_sessions():
     return jsonify(status="success", session=sess.to_dict()), 201
 
 
-
-
-
-
-
-
 @app.route("/submit-session-summary", methods=["POST"])
 @login_required
 def submit_session_summary():
@@ -77,20 +70,50 @@ def submit_session_summary():
 
     db.session.commit()
     flash("Session summary saved!", "success")
-    return redirect(url_for("session_page"))  # reloads session page with updated inf
+    return redirect(url_for("session_page"))  # reloads session page with updated info
 
 
 @app.route('/leaderboard')
 @login_required
 def leaderboard():
     users = db.session.scalars(sa.select(User)).all()
-    return render_template('leaderboard.html', title='Friends', leaderboard = users)
+    return render_template('leaderboard.html', title='Friends', leaderboard=users)
+
 
 @app.route('/history')
 @login_required
 def history():
     return render_template('history.html', title='History')
 
+
+# --- AJAX/Friend-request Endpoints ---
+
+@app.route('/friends/search')
+@login_required
+def friends_search():
+    q = request.args.get('q', '').strip()
+    if len(q) < 2:
+        return jsonify([])
+    matches = User.query.filter(
+        User.username.ilike(f'%{q}%'),
+        User.id != current_user.id
+    ).limit(10).all()
+    return jsonify([{'id': u.id, 'username': u.username} for u in matches])
+
+
+@app.route('/friends/add', methods=['POST'])
+@login_required
+def friends_add():
+    data = request.get_json() or {}
+    target = User.query.get(data.get('user_id'))
+    if not target:
+        return jsonify({'error': 'User not found'}), 404
+    if target.id == current_user.id:
+        return jsonify({'error': "You can't add yourself"}), 400
+    if not current_user.shared_with.filter_by(id=target.id).first():
+        current_user.shared_with.append(target)
+        db.session.commit()
+    return jsonify({'success': True, 'username': target.username})
 
 
 @app.route('/friends', methods=['GET', 'POST'])
@@ -111,8 +134,11 @@ def friends():
             flash(f"You are now sharing with {other.username}!", 'success')
         return redirect(url_for('friends'))
 
-    # — GET: list of User objects you’ve added (i.e. “friends”) —
-    friends = current_user.friends.order_by(User.username).all()
+    # — GET: only mutual sharing (true “friends”) —
+    shared_ids  = {u.id for u in current_user.shared_with}
+    sharers_ids = {u.id for u in current_user.shared_by}
+    mutual_ids  = shared_ids & sharers_ids
+    friends     = User.query.filter(User.id.in_(mutual_ids)).order_by(User.username).all()
 
     # pick selected friend by ?friend_id= or default to the first one
     fid = request.args.get('friend_id', type=int)
@@ -183,20 +209,21 @@ def signup():
         return redirect(url_for('signin'))
     return render_template('signup.html', title='Sign Up', form=form)
 
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = db.session.scalar(
-            sa.select(User).where(User.username == form.username.data))
+        user = db.session.scalar(sa.select(User).where(User.username == form.username.data))
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('signin'))
         login_user(user, remember=form.remember_me.data)
         return redirect('/index')
-    return render_template('signin.html', title = 'Sign In', form = form)
+    return render_template('signin.html', title='Sign In', form=form)
+
 
 @app.route('/logout')
 def logout():

@@ -1,22 +1,43 @@
-window.addEventListener('DOMContentLoaded', () => {
-  const sessionsData = {{ sessions_data|tojson }};
-  const durations = sessionsData.map(s => s.duration_min);
-  const dates = sessionsData.map(s => s.date);
-  const weekdays = sessionsData.map(s => s.weekday);
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('friend-search-input');
+  const results = document.getElementById('search-results');
 
-  // Line chart: sessions over time
-  new Chart(document.getElementById('sessions-over-time'), {
-    type: 'line', data: { labels: dates, datasets: [{ label: 'Sessions', data: dates.map(_=>1) }] }
-  });
+  input.addEventListener('keyup', function() {
+    const q = input.value.trim();
+    if (q.length < 2) {
+      results.innerHTML = '';
+      return;
+    }
+    fetch(`/friends/search?q=${encodeURIComponent(q)}`)
+      .then(response => response.json())
+      .then(users => {
+        results.innerHTML = users.map(u => `
+          <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+               data-id="${u.id}"
+          >${u.username}</div>
+        `).join('');
 
-  // Histogram of durations
-  new Chart(document.getElementById('duration-histogram'), {
-    type: 'bar', data: { labels: durations, datasets: [{ label: 'Duration (min)', data: durations }] }
-  });
-
-  // Pie: by weekday
-  const byDay = weekdays.reduce((acc,d) => { acc[d] = (acc[d]||0)+1; return acc }, {});
-  new Chart(document.getElementById('weekday-pie'), {
-    type: 'pie', data: { labels: Object.keys(byDay), datasets:[{ data: Object.values(byDay) }] }
+        results.querySelectorAll('div[data-id]').forEach(el => {
+          el.addEventListener('click', function() {
+            const userId = el.getAttribute('data-id');
+            fetch('/friends/add', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({user_id: userId})
+            })
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) {
+                alert(
+                  `${data.username} added as a friend.\n` +
+                  `They must add you back before you can see their data.`
+                );
+                input.value = '';
+                results.innerHTML = '';
+              }
+            });
+          });
+        });
+      });
   });
 });

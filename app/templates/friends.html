@@ -52,21 +52,26 @@
 
     <!-- Friends List (span 1 col) -->
     <div class="bg-white shadow rounded-lg p-6 flex flex-col">
-      <form method="post" class="mb-4">
-        {{ form.hidden_tag() }}
-        {{ form.username(class_="w-full border-gray-300 rounded p-2", placeholder="Search users…") }}
-        <button type="submit"
-                class="w-full mt-2 bg-blue-600 text-white rounded py-2 hover:bg-blue-700 transition">
-          Add
-        </button>
-      </form>
+
+      <!-- AJAX Search Bar -->
+      <div class="mb-4">
+        <input
+          type="text"
+          id="friend-search-input"
+          placeholder="Search users…"
+          class="w-full border-gray-300 rounded p-2"
+          autocomplete="off"
+        />
+        <div id="search-results" class="mt-2 bg-white shadow rounded"></div>
+      </div>
 
       <ul class="flex-1 overflow-auto divide-y divide-gray-200">
         {% for friend in friends %}
         <li>
-          <a href="{{ url_for('friends', friend_id=friend.id) }}"
-             class="block px-4 py-2 rounded 
-                    {{ 'bg-blue-50 font-semibold' if selected and friend.id==selected.id else 'hover:bg-gray-100' }}">
+          <a
+            href="{{ url_for('friends', friend_id=friend.id) }}"
+            class="block px-4 py-2 rounded {{ 'bg-blue-50 font-semibold' if selected and friend.id==selected.id else 'hover:bg-gray-100' }}"
+          >
             {{ friend.username }}
           </a>
         </li>
@@ -89,10 +94,7 @@
     type: 'pie',
     data: {
       labels: prod.labels,
-      datasets: [{
-        data: prod.counts,
-        /* you can customize colors here or leave defaults */
-      }]
+      datasets: [{ data: prod.counts }]
     },
     options: {
       responsive: true,
@@ -105,9 +107,7 @@
     type: 'pie',
     data: {
       labels: mood.labels,
-      datasets: [{
-        data: mood.counts
-      }]
+      datasets: [{ data: mood.counts }]
     },
     options: {
       responsive: true,
@@ -115,4 +115,7 @@
     }
   });
 </script>
+
+<!-- AJAX friend-search script -->
+<script src="{{ url_for('static', filename='friends.js') }}"></script>
 {% endblock %}
