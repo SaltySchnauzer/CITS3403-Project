@@ -2,10 +2,15 @@
 {% extends "base.html" %}
 
 {%block content %}
+
+<!-- Sign in Body  -->]
+
 <div class="flex items-center justify-center h-screen ">
     <form action="" method="post" class="bg-white p-8 rounded-lg shadow-md w-80">
         <h2 class="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-        {{ form.hidden_tag() }}
+        {{ form.hidden_tag() }} <!-- Prevent CSRF attack using hidden field -->
+
+        <!-- Flash messages -->
         <p>
             {{ form.username.label }}<br>
             {{ form.username(class = "w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400") }}<br>
@@ -13,6 +18,9 @@
             <div class="mb-4 p-2 rounded text-center bg-red-200 text-red-800 w-full">[{{ error }}]</div>
             {% endfor %}
         </p>
+
+        <!-- Input fields -->
+
         <p >
             {{ form.password.label }}<br>
             {{ form.password(class = "w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400") }}<br>
@@ -34,3 +42,7 @@
     </form>
 </div>
 {% endblock %}
+
+
+
+<!-- Made with the assistance of Copilot -->

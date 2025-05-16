@@ -1,3 +1,7 @@
+
+// -- session.js !!! --
+
+
 document.addEventListener("DOMContentLoaded", () => {
   let startTime = null, timerInterval;
   let sessionID = null;
@@ -218,3 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   document.getElementById("prod_slider").oninput()
 });
+
+
+// -- Made with the assistance of Copilot --

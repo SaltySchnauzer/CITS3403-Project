@@ -1,19 +1,24 @@
-# URL routing
-
-from flask import render_template # This uses jinja templating - peep /app/templates
-from flask import request, redirect, url_for, session, flash  # NEW: added imports - can merge the top two lines once people approve of change
-from flask import render_template, request, redirect, url_for, session, flash  # NEW: for password hashing
-from flask import render_template, request, jsonify # for json req
-from werkzeug.security import generate_password_hash, check_password_hash
-from app import app, db
-import sqlalchemy as sa
-from flask_login import current_user, login_user, login_required, logout_user
-from app.models import User, Session
-from app.forms import LoginForm, RegistrationForm, SessionSummaryForm, FriendSearchForm
-from datetime import datetime, timezone, timedelta, date
+# ROUTES.PY !!! 
 
 
+# url routing 
 
+from flask import render_template, request, redirect, url_for, session, flash, jsonify  # Flask core imports
+from werkzeug.security import generate_password_hash, check_password_hash               # Password hashing
+from flask_login import current_user, login_user, login_required, logout_user           # Flask-Login for user session management
+from datetime import datetime, timezone, timedelta, date                                # Date and time utilities
+import sqlalchemy as sa                                                                 # SQLAlchemy 
+
+
+# App-specific modules
+from app import app, db                                                                 # Flask app instance and database
+from app.models import User, Session                                                    # Database models
+from app.forms import LoginForm, RegistrationForm, SessionSummaryForm, FriendSearchForm # WTForms definitions
+
+
+
+
+# -- Helper function - Gets users most recent sessions -
 
 def get_last_session():
     unfinished_sessions = current_user.sessions.where(Session.ended_at == None) # Get any sessions that haven't been finished
@@ -23,13 +28,20 @@ def get_last_session():
     db.session.commit()
     return last_session
 
-# -- pages --
+
+
+
+
+
+# -- Index (home) page routing --
 
 @app.route('/')
 @app.route('/index')
 def index():
     return render_template('index.html', title='Home')
 
+
+# -- Session page routing--
 
 @app.route('/session')
 @login_required
@@ -45,9 +57,14 @@ def session_page():
     return render_template('session.html', title='Session', form=form, recent_sessions=recent_sessions, sessionID=last_sessionID)
 
 
-# AJAX submission for session state
-# Allows for the client to completely disconnect and session to stay in state/running
 
+
+
+
+# -- AJAX Form submission for session state --
+
+
+# Allows for the client to completely disconnect and session to stay in state/running
 
 @app.route("/api/sessions", methods=["POST"])
 @login_required
@@ -98,6 +115,15 @@ def api_sessions():
     return jsonify(status="success", session=sess.to_dict()), 201
 
 
+
+
+
+
+
+
+# -- Session Summary Route --
+
+
 @app.route("/submit-session-summary", methods=["POST"])
 @login_required
 def submit_session_summary():
@@ -129,6 +155,7 @@ def submit_session_summary():
 
 
 
+# -- Route for Analytics page --
 
 @app.route('/analytics')
 @login_required
@@ -159,7 +186,7 @@ def analytics():
         ]
         rating_data[day.isoformat()] = round(sum(vals) / len(vals), 2) if vals else 0
 
-    # pie by subject name now
+    # pie chart by subject name 
     subject_data = {}
     for s in sessions:
         if s.ended_at and s.name:
@@ -170,9 +197,10 @@ def analytics():
         'analytics.html',
         weekly_data=weekly_data,
         rating_data=rating_data,
-        topic_data=subject_data    # renamed to subject_data
+        topic_data=subject_data   
     )
 
+# -- Made with the assistance of Copilot --
 
 
 
@@ -182,13 +210,16 @@ def analytics():
 
 
 
-
+# -- Page Routing for History --
 
 
 @app.route('/history')
 @login_required
 def history():
     return render_template('history.html', title='History')
+
+
+
 
 
 # --- AJAX/Friend-request Endpoints ---
@@ -239,7 +270,7 @@ def friends():
             flash(f"You are now sharing with {other.username}!", 'success')
         return redirect(url_for('friends'))
 
-    # — GET: only mutual sharing (true “friends”) —
+    # — GET: only mutual sharing (implementing mutual “friends” relationship logic) —
     shared_ids  = {u.id for u in current_user.shared_with}
     sharers_ids = {u.id for u in current_user.shared_by}
     mutual_ids  = shared_ids & sharers_ids
@@ -256,7 +287,7 @@ def friends():
     total_time_ms   = 0
     avg_duration_ms = 0
 
-    # distribution buckets
+    # distribution
     prod_labels = [0, 25, 50, 75, 100]
     prod_counts = [0] * len(prod_labels)
     mood_labels = ['sad', 'neutral', 'happy']
@@ -274,7 +305,7 @@ def friends():
             if s.mood in mood_labels:
                 mood_counts[mood_labels.index(s.mood)] += 1
 
-    # convert to human units
+    # convert to hours and minutes units
     total_hours = round(total_time_ms / 3_600_000, 2)   # ms → hours
     avg_minutes = round(avg_duration_ms / 60_000, 1)    # ms → minutes
 
@@ -297,8 +328,16 @@ def friends():
         }
     )
 
+# -- Made with the assistance of Copilot --
 
-# --- Authentication Pages ---
+
+
+
+
+
+
+
+# --- Authentication Pages (sign up and sign in) ---
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -334,3 +373,6 @@ def signin():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+# -- Made with a little assistance from Copilot --

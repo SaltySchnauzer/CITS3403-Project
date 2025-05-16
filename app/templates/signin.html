@@ -2,6 +2,9 @@
 {% extends "base.html" %}
 
 {%block content %}
+
+<!-- Flash Messages -->
+
 <div class="flex items-center justify-center flex-grow bg-gray-100">
     <form action="" method="post" class="bg-white p-8 rounded-lg shadow-md w-80" novalidate>
         {{ form.hidden_tag() }}
@@ -16,6 +19,8 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
+
+        <!-- Form fields -->
 
         <p>
             {{ form.username.label }}<br>
@@ -39,4 +44,8 @@
     </form>
 </div>
 {% endblock %}
+
+
+
+<!-- Made with the assistance of Copilot -->
 

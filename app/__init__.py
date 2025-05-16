@@ -1,19 +1,20 @@
 from flask import Flask
 
-#SQL Database imports
-from flask_migrate import Migrate 
-from flask_sqlalchemy import SQLAlchemy 
+
+from flask_sqlalchemy import SQLAlchemy # Database and configuration
+from flask_migrate import Migrate
 from app.config import Config
-from flask_login import LoginManager
 
-app = Flask(__name__)
+from flask_login import LoginManager    # User session management
 
-app.config.from_object(Config) 
-db = SQLAlchemy(app) # Iniitalise database object
-migrate = Migrate(app, db) # Initialise migration manager
+app = Flask(__name__)                   # Initialize Flask app
+app.config.from_object(Config)
 
-login = LoginManager(app)
-login.login_view = 'signin'
+db = SQLAlchemy(app)                    # Initialize database and migration manager
+migrate = Migrate(app, db)
 
-from app import routes # This is imported later to avoid circular referencing issues with Flask
+login = LoginManager(app)               # Initialize login manager
+login.login_view = 'signin'             # Redirect unauthorized users to the 'signin' route
+
+from app import routes                  # This is imported later to avoid circular referencing issues with Flask
 
