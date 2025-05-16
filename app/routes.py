@@ -68,10 +68,7 @@ def api_sessions():
 
             # please do not change this timezone stuff, timezones are hell. I've lost upwards of two hours with this insanity.
             # ping saltyschnauzer if you need this explained to you
-            endtime = datetime.now(timezone.utc)
-            last_session.ended_at = datetime.now(timezone.utc)
-            last_session.duration = (endtime - last_session.started_at.replace(tzinfo=timezone.utc)).total_seconds()
-
+            last_session.set_end(datetime.now(timezone.utc))
             # Set some defaults in case they don't do the form
             last_session.productivity = 50
             last_session.name = "Un-named Session"
