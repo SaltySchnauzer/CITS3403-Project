@@ -1,7 +1,7 @@
 from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 # ----------------------------------------------------------------
 # Association table for “sharing” (i.e. adding friends)
@@ -86,6 +86,11 @@ class Session(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user    = db.relationship('User', back_populates='sessions')
     
+    def set_end(self, time):
+        self.ended_at = time
+        self.duration = (self.ended_at.replace(tzinfo=timezone.utc) - self.started_at.replace(tzinfo=timezone.utc)).total_seconds()
+        self.productivity = 50
+
     def to_dict(self):
         try:
             t_end = self.ended_at.isoformat() # Has a chance to not exist - this is a safeguard to stop to_dict from failing
