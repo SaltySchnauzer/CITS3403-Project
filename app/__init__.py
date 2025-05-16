@@ -1,11 +1,9 @@
 from flask import Flask
 
-#SQL Database imports
-from flask_migrate import Migrate 
-from flask_sqlalchemy import SQLAlchemy 
-from app.config import Config
-from flask_login import LoginManager
 
+from flask_sqlalchemy import SQLAlchemy # Database and configuration
+from flask_migrate import Migrate
+from app.config import Config
 
 db = SQLAlchemy()
 login = LoginManager()

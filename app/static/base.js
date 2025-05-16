@@ -1,4 +1,8 @@
-// re-usable func to check if there is a session running
+// -- base.js  --
+
+
+// -- Re-usable Function to check if there is a session running --
+
 async function checkIfSession(payload){
     try {
     const res = await fetch("/api/sessions", {
@@ -12,6 +16,8 @@ async function checkIfSession(payload){
     console.error("Session check failed:", err);
     }
 }
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
     // Check if session is running

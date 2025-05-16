@@ -27,7 +27,7 @@
   <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
     <h2 class="text-xl font-semibold text-gray-800">Session Summary</h2>
     <form action="{{ url_for('main.submit_session_summary') }}" method="POST" class="space-y-4">
-      {{ form.hidden_tag() }}
+      {{ form.hidden_tag() }} <!-- Prevent CSRF attacks by using hidden field -->
 
       <div>
         <label for="subject" class="block text-sm font-medium text-gray-700">Subject Studied</label>
@@ -57,6 +57,10 @@
         </select>
       </div>
 
+
+      <!-- Troubleshooting (fallback dislay): -->
+
+
       <div>
         {{form.productivity.label}} <br>
         {{form.productivity(class="w-full", id="prod_slider")}}
@@ -64,6 +68,8 @@
             javascript is thinking...
         </div>
       </div>
+
+
 
       <div>
         <label class="block text-sm font-medium text-gray-700">How did you feel?</label>
@@ -90,3 +96,7 @@
   </div>
 </div>
 
+
+
+
+<!-- Made with the assistance of Copilot -->

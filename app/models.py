@@ -3,9 +3,10 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
 
-# ----------------------------------------------------------------
-# Association table for “sharing” (i.e. adding friends)
-# ----------------------------------------------------------------
+
+
+# -- Association table for “sharing” (i.e. adding friends) --
+
 share_associations = db.Table(
     'share_associations',
     db.Column('sharer_id',      db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -16,9 +17,12 @@ share_associations = db.Table(
 def load_user(id):
     return db.session.get(User, int(id))
 
-# ----------------------------------------------------------------
-# User model
-# ----------------------------------------------------------------
+
+
+
+
+# -- User Model--
+
 class User(UserMixin, db.Model):
     id            = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(50), nullable=False)
@@ -66,9 +70,17 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f"<User {self.username}>"
 
-# ----------------------------------------------------------------
-# Session model (unchanged)
-# ----------------------------------------------------------------
+# -- Made with the assistance of Copilot --
+
+
+
+
+
+
+
+
+# -- Session Model --
+
 class Session(db.Model):
     __tablename__ = 'session'
     id              = db.Column(db.Integer, primary_key=True)
@@ -108,3 +120,6 @@ class Session(db.Model):
             'productivity': self.productivity,
             'mood':         self.mood
         }
+    
+
+# -- Made with a little! assistance from Copilot --

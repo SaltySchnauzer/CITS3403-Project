@@ -1,9 +1,15 @@
 {% extends "base.html" %}
 
 {%block content %}
+
+    <!-- Title -->
+
     <div class="font-bold flex items-center justify-center text-4xl m-16">
         Your History:
     </div>
+
+    <!-- History List -->
+     
     <div class = "w-1/3 self-center">
     {% for s in current_user.sessions |reverse %}
         {% if s.ended_at %}
@@ -42,7 +48,7 @@
                     {{s.mood}}
                 </div>
                 <div>
-                    Productivity: {{s.productivity|round(0)|int}}%
+                    Productivity: {{ (s.productivity or 50)|round(0)|int }}
                 </div>
             </div>
         </div>
@@ -50,3 +56,7 @@
     {% endfor %}
     </div>
 {% endblock %}
+
+
+
+

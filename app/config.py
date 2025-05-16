@@ -1,8 +1,8 @@
 import os 
 
 
-# SQL database stored in root 
 
+# SQL database stored in root 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:

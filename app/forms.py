@@ -5,9 +5,12 @@ import sqlalchemy as sa
 from app import db
 from app.models import User
 from wtforms.validators import DataRequired
-
-
 from wtforms import fields
+
+
+
+# -- Forms --
+
 
 class SessionSummaryForm(FlaskForm):
     subject = StringField("Subject", validators=[DataRequired()])
@@ -15,6 +18,7 @@ class SessionSummaryForm(FlaskForm):
     mood = RadioField("Mood", choices=[("sad", "😞"), ("neutral", "😐"), ("happy", "😊")], validators=[DataRequired()])
     description = TextAreaField("Description")
     task_type = SelectField("Type", choices=["Assignment", "Study", "Exam Prep", "Quiz"], validators=[DataRequired()])
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
