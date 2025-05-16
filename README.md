@@ -26,6 +26,12 @@ lalala description or something
 
 If the database begins to bug out, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
 
+### Tests
+#### Unit Tests
+1. `python -m unittest tests.py`
+
+#### Selinium Tests
+
 ### Current packages in use
 - Flask
     - Our web app backend
@@ -35,5 +41,17 @@ If the database begins to bug out, hard reset it by deleting the `migrations` fo
 - Tailwind (CLI)
     - A CSS formatter
     - Typically depends on Node Package Manager - but because our backend is currently only python, we've opted for an independent cli
-
-- need to add SQL and SQLalchemy stuff. 
+- SQLAlchemy
+    - Backbone of interacting with an SQL database
+- Flask-Login
+    - Handles user sessions + authentication
+- werkzeug-security
+    - Password hashing/salting
+- Flask-Migrate
+    - Database migrations
+- Flask-WTF
+    - Webforms
+    - Prevents CRSF attacks by including a secret key to authenticate it
+- unittests
+    - Included within python
+    - Used for unit testing

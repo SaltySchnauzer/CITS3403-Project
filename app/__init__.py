@@ -6,14 +6,20 @@ from flask_sqlalchemy import SQLAlchemy
 from app.config import Config
 from flask_login import LoginManager
 
-app = Flask(__name__)
 
-app.config.from_object(Config) 
-db = SQLAlchemy(app) # Iniitalise database object
-migrate = Migrate(app, db) # Initialise migration manager
+db = SQLAlchemy()
+login = LoginManager()
+login.login_view = 'main.signin'
 
-login = LoginManager(app)
-login.login_view = 'signin'
+def create_app(config):
+    flaskApp = Flask(__name__)
+    flaskApp.config.from_object(config)
+    
+    db.init_app(flaskApp)
+    login.init_app(flaskApp)
 
-from app import routes # This is imported later to avoid circular referencing issues with Flask
+    from app.blueprints import main
+    flaskApp.register_blueprint(main)
+
+    return flaskApp
 

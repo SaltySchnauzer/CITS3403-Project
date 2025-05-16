@@ -5,7 +5,8 @@ from flask import request, redirect, url_for, session, flash  # NEW: added impor
 from flask import render_template, request, redirect, url_for, session, flash  # NEW: for password hashing
 from flask import render_template, request, jsonify # for json req
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import app, db
+from app import db
+from app.blueprints import main
 import sqlalchemy as sa
 from flask_login import current_user, login_user, login_required, logout_user
 from app.models import User, Session
@@ -25,13 +26,13 @@ def get_last_session():
 
 # -- pages --
 
-@app.route('/')
-@app.route('/index')
+@main.route('/')
+@main.route('/index')
 def index():
     return render_template('index.html', title='Home')
 
 
-@app.route('/session')
+@main.route('/session')
 @login_required
 def session_page():
     # Check if there is an already running session - if so, hide it in the template
@@ -49,7 +50,7 @@ def session_page():
 # Allows for the client to completely disconnect and session to stay in state/running
 
 
-@app.route("/api/sessions", methods=["POST"])
+@main.route("/api/sessions", methods=["POST"])
 @login_required
 def api_sessions():
     data = request.get_json()
@@ -98,7 +99,7 @@ def api_sessions():
     return jsonify(status="success", session=sess.to_dict()), 201
 
 
-@app.route("/submit-session-summary", methods=["POST"])
+@main.route("/submit-session-summary", methods=["POST"])
 @login_required
 def submit_session_summary():
     subject = request.form.get("subject")
@@ -111,7 +112,7 @@ def submit_session_summary():
 
     if not last_session:
         flash("No session found to update.", "danger")
-        return redirect(url_for("session_page"))
+        return redirect(url_for("main.session_page"))
 
     last_session.name = subject
     last_session.productivity = float(productivity)
@@ -121,17 +122,17 @@ def submit_session_summary():
 
     db.session.commit()
     flash("Session summary saved!", "success")
-    return redirect(url_for("session_page"))  # reloads session page with updated info
+    return redirect(url_for("main.session_page"))  # reloads session page with updated info
 
 
-@app.route('/leaderboard')
+@main.route('/leaderboard')
 @login_required
 def leaderboard():
     users = db.session.scalars(sa.select(User)).all()
     return render_template('leaderboard.html', title='Friends', leaderboard=users)
 
 
-@app.route('/history')
+@main.route('/history')
 @login_required
 def history():
     return render_template('history.html', title='History')
@@ -139,7 +140,7 @@ def history():
 
 # --- AJAX/Friend-request Endpoints ---
 
-@app.route('/friends/search')
+@main.route('/friends/search')
 @login_required
 def friends_search():
     q = request.args.get('q', '').strip()
@@ -152,7 +153,7 @@ def friends_search():
     return jsonify([{'id': u.id, 'username': u.username} for u in matches])
 
 
-@app.route('/friends/add', methods=['POST'])
+@main.route('/friends/add', methods=['POST'])
 @login_required
 def friends_add():
     data = request.get_json() or {}
@@ -167,7 +168,7 @@ def friends_add():
     return jsonify({'success': True, 'username': target.username})
 
 
-@app.route('/friends', methods=['GET', 'POST'])
+@main.route('/friends', methods=['GET', 'POST'])
 @login_required
 def friends():
     form = FriendSearchForm()
@@ -183,7 +184,7 @@ def friends():
             current_user.add_friend(other)
             db.session.commit()
             flash(f"You are now sharing with {other.username}!", 'success')
-        return redirect(url_for('friends'))
+        return redirect(url_for('main.friends'))
 
     # — GET: only mutual sharing (true “friends”) —
     shared_ids  = {u.id for u in current_user.shared_with}
@@ -246,10 +247,10 @@ def friends():
 
 # --- Authentication Pages ---
 
-@app.route('/signup', methods=['GET', 'POST'])
+@main.route('/signup', methods=['GET', 'POST'])
 def signup():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data)
@@ -257,26 +258,26 @@ def signup():
         db.session.add(user)
         db.session.commit()
         login_user(user)
-        return redirect(url_for('signin'))
+        return redirect(url_for('main.signin'))
     return render_template('signup.html', title='Sign Up', form=form)
 
 
-@app.route('/signin', methods=['GET', 'POST'])
+@main.route('/signin', methods=['GET', 'POST'])
 def signin():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = db.session.scalar(sa.select(User).where(User.username == form.username.data))
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
-            return redirect(url_for('signin'))
+            return redirect(url_for('main.signin'))
         login_user(user, remember=form.remember_me.data)
         return redirect('/index')
     return render_template('signin.html', title='Sign In', form=form)
 
 
-@app.route('/logout')
+@main.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
