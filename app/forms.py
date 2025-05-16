@@ -35,3 +35,8 @@ class RegistrationForm(FlaskForm):
             User.username == username.data))
         if user is not None:
             raise ValidationError('Please use a different username.')
+        
+
+class FriendSearchForm(FlaskForm):
+    username = StringField('Search users', validators=[DataRequired()])
+    submit = SubmitField('Add')

@@ -1,0 +1,18 @@
+{% set screen = 'scroll' %}
+{% extends "base.html" %}
+
+{%block content %}
+    Your buddies:
+    {% for entry in leaderboard %}
+    {% if entry.username == current_user.username %}
+    <div class= "p-4 rounded-full m-6 bg-blue-500">
+        You have studied {{entry.time}} in the past week!
+    </div>
+    {% else %}
+    <div class= "p-4 rounded-full m-6 bg-teal-600">
+        {{entry.username}} has studied {{entry.time}} in the past week!
+    </div>
+    {% endif %}
+    {% endfor %}
+
+{% endblock %}

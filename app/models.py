@@ -3,36 +3,36 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-
-
-
-# Association table for sharing preferences (users who share sessions with other users)
+# ----------------------------------------------------------------
+# Association table for “sharing” (i.e. adding friends)
+# ----------------------------------------------------------------
 share_associations = db.Table(
     'share_associations',
-    db.Column('sharer_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('sharer_id',      db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('shared_with_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
 )
-
-
-
 
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
 
-# Table stores account user information such as a user id, username and password. 
-class User(UserMixin, db.Model): 
-    id = db.Column(db.Integer, primary_key=True) # internal primary key - not set by user
-    username = db.Column(db.String(50), nullable=False) # not unique - duplicates possible within database, but not through submission (you can add dupes through python shell for instance)
-    password_hash = db.Column(db.String(256)) # unreadable, secure password storage hash
+# ----------------------------------------------------------------
+# User model
+# ----------------------------------------------------------------
+class User(UserMixin, db.Model):
+    id            = db.Column(db.Integer, primary_key=True)
+    username      = db.Column(db.String(50), nullable=False)
+    password_hash = db.Column(db.String(256))
 
-
-    # One-to-many: a user has many study sessions
+    # your own study sessions
     sessions = db.relationship(
-        'Session', back_populates='user', cascade='all, delete-orphan', lazy='dynamic'
+        'Session',
+        back_populates='user',
+        cascade='all, delete-orphan',
+        lazy='dynamic'
     )
 
-    # Many-to-many: users this user shares with
+    # people you’ve “added” (shared your data with)
     shared_with = db.relationship(
         'User',
         secondary=share_associations,
@@ -42,23 +42,35 @@ class User(UserMixin, db.Model):
         lazy='dynamic'
     )
 
+    @property
+    def friends(self):
+        """Alias for users you’ve added."""
+        return self.shared_with
 
-    # For setting password
+    def add_friend(self, user):
+        """Share your sessions with another user."""
+        if not self.shared_with.filter_by(id=user.id).first():
+            self.shared_with.append(user)
+
+    def remove_friend(self, user):
+        """Stop sharing with a user."""
+        if self.shared_with.filter_by(id=user.id).first():
+            self.shared_with.remove(user)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    # For checking if password is correct
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    # For printing to console
     def __repr__(self):
-        return "<User: {}>".format(self.username)
-    
+        return f"<User {self.username}>"
 
+# ----------------------------------------------------------------
+# Session model (unchanged)
+# ----------------------------------------------------------------
 class Session(db.Model):
     __tablename__ = 'session'
-
     id              = db.Column(db.Integer, primary_key=True)
     name            = db.Column(db.String(100), nullable=True)  # Subject studied
     description     = db.Column(db.String(256), nullable=True)  # User entered description
@@ -68,6 +80,7 @@ class Session(db.Model):
     duration        = db.Column(db.Integer, nullable=True)  # in milliseconds
     productivity    = db.Column(db.Float, nullable=True)  # 0, 25, 50, 75, 100
     mood            = db.Column(db.String(10), nullable=True)  # 'sad', 'neutral', 'happy'
+
 
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

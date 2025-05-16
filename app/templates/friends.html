@@ -1,18 +1,127 @@
-{% set screen = 'scroll' %}
 {% extends "base.html" %}
+{% block content %}
+<div class="px-6 py-8 space-y-6 relative">
 
-{%block content %}
-    Your buddies:
-    {% for entry in leaderboard %}
-    {% if entry.username == current_user.username %}
-    <div class= "p-4 rounded-full m-6 bg-blue-500">
-        You have studied {{entry.time}} in the past week!
-    </div>
-    {% else %}
-    <div class= "p-4 rounded-full m-6 bg-teal-600">
-        {{entry.username}} has studied {{entry.time}} in the past week!
-    </div>
-    {% endif %}
-    {% endfor %}
+  <!-- Toasts -->
+  <div id="toast-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
+  <!-- Page title -->
+  <h2 class="text-2xl font-semibold text-gray-800">Friends</h2>
+
+  <!-- two-column layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+    <!-- Analytics (span 3 cols) -->
+    <div class="lg:col-span-3 space-y-6">
+
+      <!-- Top Row: summary cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <!-- Total Sessions -->
+        <div class="bg-white shadow rounded-lg p-6 flex items-center">
+          <div class="flex-1">
+            <div class="text-4xl font-bold">{{ total_sessions }}</div>
+            <div class="text-sm text-gray-500">Sessions</div>
+          </div>
+        </div>
+        <!-- Total Time -->
+        <div class="bg-white shadow rounded-lg p-6 flex items-center">
+          <div class="flex-1">
+            <div class="text-4xl font-bold">{{ total_hours }}</div>
+            <div class="text-sm text-gray-500">Hours</div>
+          </div>
+        </div>
+        <!-- Average Duration -->
+        <div class="bg-white shadow rounded-lg p-6 flex items-center">
+          <div class="flex-1">
+            <div class="text-4xl font-bold">{{ avg_minutes }}</div>
+            <div class="text-sm text-gray-500">Minutes avg</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie Charts -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-semibold mb-4">Productivity</h3>
+          <canvas id="prodPie"></canvas>
+        </div>
+        <div class="bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-semibold mb-4">Mood</h3>
+          <canvas id="moodPie"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Friends List (span 1 col) -->
+    <div class="bg-white shadow rounded-lg p-6 flex flex-col">
+
+      <!-- AJAX Search Bar -->
+      <div class="mb-4">
+        <input
+          type="text"
+          id="friend-search-input"
+          placeholder="Search users…"
+          class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          autocomplete="off"
+        />
+        <div
+          id="search-results"
+          class="mt-2 bg-white border border-gray-200 rounded-lg shadow-inner overflow-hidden"
+        ></div>
+      </div>
+
+      <ul class="flex-1 overflow-auto divide-y divide-gray-200">
+        {% for friend in friends %}
+        <li>
+          <a
+            href="{{ url_for('friends', friend_id=friend.id) }}"
+            class="block px-4 py-2 rounded {{ 'bg-blue-50 font-semibold' if selected and friend.id==selected.id else 'hover:bg-gray-100' }}"
+          >
+            {{ friend.username }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- Chart.js CDN + init -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // pull in the data from Jinja
+  const prod = {{ productivity_data|tojson }};
+  const mood = {{ mood_data|tojson }};
+
+  // Productivity pie
+  new Chart(document.getElementById('prodPie'), {
+    type: 'pie',
+    data: {
+      labels: prod.labels,
+      datasets: [{ data: prod.counts }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  // Mood pie
+  new Chart(document.getElementById('moodPie'), {
+    type: 'pie',
+    data: {
+      labels: mood.labels,
+      datasets: [{ data: mood.counts }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+</script>
+
+<!-- AJAX friend-search script -->
+<script src="{{ url_for('static', filename='friends.js') }}"></script>
 {% endblock %}
