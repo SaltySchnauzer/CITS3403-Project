@@ -16,6 +16,49 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   }
 
+  // Gets time from server and resyncs timer
+  async function resyncTime(){
+    const payload = {
+      type: "time",
+      id: sessionID
+    };
+
+    try {
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const session_json = await res.json();
+      startTime = new Date(Date.parse(session_json["start_time"]));
+    } catch (err) {
+      console.error("Session time-sync failed:", err);
+    }
+  }
+
+  // Pick up an old session
+  if (typeof oldSession !== 'undefined'){
+    sessionID = oldSession;
+    
+    // Copied from below - transition page to timer started
+    timerInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      timerEl.textContent = fmt(elapsed);
+      if (focusTimer) focusTimer.textContent = fmt(elapsed);
+    }, 500);
+
+    startBtn.disabled = true;
+    endBtn.disabled = false;
+    
+    // Hide original content original content
+    sessionWrapper.classList.add("fade-out"); // Kept to prevent an error down the line - doesn't actually do anything
+    sessionWrapper.classList.add("hidden");
+    focusMode.classList.remove("hidden");
+
+    resyncTime() // Time isn't synced - call and resync time
+  }
+
   startBtn.addEventListener("click", () => {
     startTime = Date.now();
     startBtn.disabled = true;

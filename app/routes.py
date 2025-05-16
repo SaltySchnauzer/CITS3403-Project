@@ -13,6 +13,14 @@ from app.forms import LoginForm, RegistrationForm, SessionSummaryForm
 from datetime import datetime, timezone
 
 
+def get_last_session():
+    unfinished_sessions = current_user.sessions.where(Session.ended_at == None) # Get any sessions that haven't been finished
+    last_session = unfinished_sessions.order_by(Session.started_at.desc()).first() # Get most recent
+    if last_session is not None:
+        unfinished_sessions.where(Session.id != last_session.id).delete() # Delete the others
+    db.session.commit()
+    return last_session
+
 # -- pages --
 
 @app.route('/')
@@ -24,9 +32,15 @@ def index():
 @app.route('/session')
 @login_required
 def session_page():
+    # Check if there is an already running session - if so, hide it in the template
+    last_sessionID = ""
+    last_session = get_last_session()
+    if last_session != None:
+        last_sessionID = last_session.id
+    # Set up form + quick history
     form = SessionSummaryForm()
-    recent_sessions = current_user.sessions.where(Session.ended_at != "").order_by(Session.started_at.desc()).limit(6)
-    return render_template('session.html', title='Session', form=form, recent_sessions=recent_sessions)
+    recent_sessions = current_user.sessions.where(Session.ended_at != None).order_by(Session.started_at.desc()).limit(6)
+    return render_template('session.html', title='Session', form=form, recent_sessions=recent_sessions, sessionID=last_sessionID)
 
 # AJAX submission for session state
 # Allows for the client to completely disconnect and session to stay in state/running
@@ -36,7 +50,7 @@ def session_page():
 def api_sessions():
     data = request.get_json()
     match data["type"]:
-        case "start":
+        case "start": # Starts a session
             started = datetime.now(timezone.utc)
             sess = Session(
                 started_at = started,
@@ -44,8 +58,8 @@ def api_sessions():
             )
             db.session.add(sess)
             db.session.commit()
-        case "end":
-            last_session = current_user.sessions.where(Session.id == data["id"]).first() # get relevant session
+        case "end": # For finishing the session - records time
+            last_session = current_user.sessions.where(Session.id == data["id"]).first()
 
             # please do not change this timezone stuff, timezones are hell. I've lost upwards of two hours with this insanity.
             # ping saltyschnauzer if you need this explained to you
@@ -61,11 +75,21 @@ def api_sessions():
             db.session.commit() # update db
 
             sess = last_session
-        case "abort":
+        case "abort": # For cancelling a session
             last_session = current_user.sessions.order_by(Session.started_at.desc()).first()
             if last_session.ended_at == "":
                 db.session.delete(last_session)
-            return 201
+            return 204
+        case "time": # For resyncing after a connection loss
+            sess = current_user.sessions.where(Session.id == data["id"]).first() # get relevant session
+            time = sess.started_at.isoformat() + "+00:00" # Send as a UTC time
+            return jsonify(status="success", session=sess.to_dict(), start_time=time), 200
+        case "check": # To check if there is a session running
+            sess = get_last_session()
+            if sess != None:
+                return jsonify(status="active"), 200
+            else:
+                return jsonify(status="inactive"), 200
                 
     return jsonify(status="success", session=sess.to_dict()), 201
 
