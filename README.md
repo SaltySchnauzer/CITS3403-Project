@@ -23,11 +23,13 @@ This is an in-development website aimed to provide the ability for users to trac
 4. Run the Tailwind CSS compiler (in a separate terminal) `./tailwindcss -i app/templates/input.css -o app/static/tailwind.css --watch`
     - This isn't only necessary for updating CSS updates. Not required for simple set-up.
 
-Exception: If the database really doesn't seem to be working, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
+Exception: If the database *really* doesn't seem to be working, hard reset it by deleting the `migrations` folder and the `app/app.db` file.
 
 ### Tests
 - Unit Tests: `python -m unittest tests/unit_test.py`
 - Selenium Tests: `python -m unittest tests/selenium_test.py`
+
+*Note: Selenium requires firefox to be installed in your linux subsystem - `sudo apt install firefox`*
 
 ### Current packages in use
 - Flask
