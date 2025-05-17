@@ -50,9 +50,7 @@
           <div class="bg-white rounded-xl shadow-md p-4 border border-gray-200">
             <div class="font-semibold text-gray-700">{{ s.name or "Session" }}</div>
             <div class="text-sm text-gray-500 mt-1">
-              <span class="session-time" 
-                    data-start="{{ s.started_at.isoformat() }}" 
-                    data-end="{{ s.ended_at.isoformat() }}">Loading...</span>: {{(s.duration/60)|round(0) | int}} mins
+              <span>{{moment(s.started_at).format('hh:mm')}} → {{moment(s.ended_at).format('hh:mm')}}</span>: {{(s.duration/60)|round(0) | int}} mins
             </div>
             <div class = "italic text-sm">
               {% if s.description == '' %}

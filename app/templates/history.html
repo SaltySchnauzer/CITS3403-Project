@@ -19,17 +19,17 @@
                 <div class="font-light text-gray-500">{{s.task_type}}</div>
                 {% if s.started_at.strftime("%d/%m/%y") == s.ended_at.strftime("%d/%m/%y") %}
                 <div class="text-sm text-gray-500 mt-1">
-                    {{s.started_at.strftime("%d/%m/%y")}}
+                    {{moment(s.started_at).format('dddd, d MMMM yy')}}
                 </div>
                 {% else %}
                 <div class="text-sm text-gray-500 mt-1">
-                    {{s.started_at.strftime("%d/%m/%y")}} -
-                    {{s.ended_at.strftime("%d/%m/%y")}}
+                    {{moment(s.started_at).format('dddd, d MMMM yy')}} → 
+                    {{moment(s.ended_at).format('dddd, d MMMM yy')}}
                 </div>
                 {% endif %}
                 <div class="text-sm text-gray-500 mt-1">
-                    {{s.started_at.strftime("%I:%M %p")}} -
-                    {{s.ended_at.strftime("%I:%M %p")}},
+                    {{moment(s.started_at).format('hh:mm:ss a')}} → 
+                    {{moment(s.ended_at).format('hh:mm:ss a')}},
                     {{(s.duration/60000)|round(0) | int}} minutes
                 </div>
                 <div class = "italic text-sm">
