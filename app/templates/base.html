@@ -72,13 +72,9 @@
                 </div>
             </div>
             <div id="session_active" class="hidden self-center text-red-600 bg-red-300 rounded-b-md p-2">You have a session running!</div>
+            <script src="{{ url_for('static', filename='base.js') }}"></script>
             {% block content %}{% endblock %}
         </div>
     {{ moment.include_moment() }}
     </body>
 </html>
-
-
-
-
-<!-- Made with the assistance of Copilot -->

@@ -1,4 +1,4 @@
-import unittest
+from unittest import TestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -15,7 +15,7 @@ def add_test_data():
         db.session.add(user)
         db.session.commit()
 
-class SeleniumTestCase(unittest.TestCase):
+class SeleniumTestCase(TestCase):
     def setUp(self):
         # Configure app in testing mode
         self.testApp = create_app(TestConfig)
@@ -30,12 +30,9 @@ class SeleniumTestCase(unittest.TestCase):
 
         self.server_thread = threading.Thread(target=run)
         self.server_thread.start()
-        time.sleep(1)  # Wait for server to start
 
         # Set up headless Chrome browser
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        self.driver = webdriver.Chrome(options=chrome_options)
+        self.driver = webdriver.Firefox()
 
     def tearDown(self):
         self.server_thread.terminate()
@@ -52,6 +49,3 @@ class SeleniumTestCase(unittest.TestCase):
 
         # Check that we're redirected to the session page or homepage
         self.assertIn("session", self.browser.current_url)
-
-if __name__ == '__main__':
-    unittest.main()

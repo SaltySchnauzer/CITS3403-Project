@@ -4,8 +4,6 @@ from app.models import User, Session
 from unittest import TestCase
 import datetime
 
-testApp = create_app(TestConfig)
-
 def add_test_data():
     u = User(id='0', username='Test Dummy')
     u2 = User(id='1', username='Test Dummy The Second')
